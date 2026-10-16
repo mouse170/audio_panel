@@ -4,6 +4,7 @@ import {
   Layers,
   Lock,
   Play,
+  Repeat,
   SlidersHorizontal,
   Square,
   Unlock,
@@ -112,6 +113,7 @@ export const App: React.FC = () => {
   const [activeProfileId, setActiveProfileId] = useState<string>(initialData.activeProfileId);
   const [cachedMetaMap, setCachedMetaMap] = useState<Record<string, CachedAudioMeta>>({});
   const [isLocked, setIsLocked] = useState<boolean>(true);
+  const [isLooping, setIsLooping] = useState<boolean>(true);
 
   // Playback state
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
@@ -124,9 +126,18 @@ export const App: React.FC = () => {
   const [longPressTrackId, setLongPressTrackId] = useState<string | null>(null);
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
 
-  // Audio Element & ObjectURL Ref
+  // Persistent DOM Audio Element & ObjectURL & WakeLock Refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const activeObjectUrlRef = useRef<string | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const isLoopingRef = useRef<boolean>(isLooping);
+
+  useEffect(() => {
+    isLoopingRef.current = isLooping;
+    if (audioRef.current) {
+      audioRef.current.loop = isLooping;
+    }
+  }, [isLooping]);
 
   // Long press gesture refs
   const longPressTimerRef = useRef<number | null>(null);
@@ -156,21 +167,106 @@ export const App: React.FC = () => {
     getAllCachedAudioMeta().then(setCachedMetaMap);
   }, []);
 
+  // Screen Wake Lock management (keeps screen awake or cleanly re-acquires when unlocked)
+  const requestWakeLock = useCallback(async () => {
+    if ('wakeLock' in navigator && document.visibilityState === 'visible') {
+      try {
+        if (!wakeLockRef.current) {
+          wakeLockRef.current = await navigator.wakeLock.request('screen');
+          wakeLockRef.current.addEventListener('release', () => {
+            wakeLockRef.current = null;
+          });
+        }
+      } catch {
+        // Ignore if battery saver blocks wakeLock
+      }
+    }
+  }, []);
+
+  const releaseWakeLock = useCallback(async () => {
+    if (wakeLockRef.current) {
+      try {
+        await wakeLockRef.current.release();
+      } catch {
+        // Ignore release errors
+      }
+      wakeLockRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && playingTrackId) {
+        requestWakeLock();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [playingTrackId, requestWakeLock]);
+
   const stopPlayback = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current.removeAttribute('src');
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
     }
     if (activeObjectUrlRef.current) {
       URL.revokeObjectURL(activeObjectUrlRef.current);
       activeObjectUrlRef.current = null;
     }
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'none';
+    }
+    releaseWakeLock();
     setPlayingTrackId(null);
     setPlayingVersionId(null);
     setCurrentTime(0);
     setDuration(0);
-  }, []);
+  }, [releaseWakeLock]);
+
+  const updateMediaSession = useCallback(
+    (track: TrackButtonConfig, version: AudioVersion) => {
+      if (!('mediaSession' in navigator)) return;
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: `${track.code}. ${track.title}（${version.shortBadge}）`,
+          artist: track.subtitle,
+          album: activeProfile.name,
+          artwork: [
+            {
+              src: new URL('./icon.svg', window.location.href).href,
+              sizes: '512x512',
+              type: 'image/svg+xml'
+            }
+          ]
+        });
+        navigator.mediaSession.playbackState = 'playing';
+
+        navigator.mediaSession.setActionHandler('play', async () => {
+          if (audioRef.current) {
+            await audioRef.current.play();
+            navigator.mediaSession.playbackState = 'playing';
+          }
+        });
+        navigator.mediaSession.setActionHandler('pause', () => {
+          stopPlayback();
+        });
+        navigator.mediaSession.setActionHandler('stop', () => {
+          stopPlayback();
+        });
+        navigator.mediaSession.setActionHandler('seekto', (details) => {
+          if (audioRef.current && details.seekTime !== undefined) {
+            audioRef.current.currentTime = details.seekTime;
+          }
+        });
+      } catch {
+        // Ignore unsupported mediaSession actions
+      }
+    },
+    [activeProfile.name, stopPlayback]
+  );
 
   const startPlayback = useCallback(
     async (track: TrackButtonConfig, forceVersionIndex?: number) => {
@@ -180,7 +276,15 @@ export const App: React.FC = () => {
       const version = track.versions[verIdx] || track.versions[0];
       if (!version) return;
 
-      stopPlayback();
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      // Pause current before switching source
+      audio.pause();
+      if (activeObjectUrlRef.current) {
+        URL.revokeObjectURL(activeObjectUrlRef.current);
+        activeObjectUrlRef.current = null;
+      }
 
       try {
         let playSrc = version.bundledUrl;
@@ -197,16 +301,16 @@ export const App: React.FC = () => {
           throw new Error(`尚未為「${track.title} (${version.shortBadge})」綁定音檔`);
         }
 
-        if (!audioRef.current) {
-          audioRef.current = new Audio();
-        }
-        const audio = audioRef.current;
+        audio.loop = isLoopingRef.current;
         audio.src = playSrc;
         audio.currentTime = 0;
+
         setPlayingTrackId(track.id);
         setPlayingVersionId(version.id);
 
         await audio.play();
+        updateMediaSession(track, version);
+        requestWakeLock();
       } catch (err) {
         stopPlayback();
         setPlaybackError(
@@ -214,43 +318,41 @@ export const App: React.FC = () => {
         );
       }
     },
-    [stopPlayback]
+    [requestWakeLock, stopPlayback, updateMediaSession]
   );
 
-  useEffect(() => {
-    const audio = new Audio();
-    audioRef.current = audio;
+  // Audio element event handlers for progress & seamless background looping
+  const handleAudioTimeUpdate = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    setCurrentTime(audio.currentTime || 0);
+  };
 
-    const onTimeUpdate = () => setCurrentTime(audio.currentTime || 0);
-    const onLoadedMetadata = () => setDuration(audio.duration || 0);
-    const onEnded = () => {
-      setPlayingTrackId(null);
-      setPlayingVersionId(null);
-      setCurrentTime(0);
-      setDuration(0);
-    };
-    const onError = () => {
-      setPlaybackError('音檔載入異常，請長按按鈕切換版本或重新快取音檔');
-      setPlayingTrackId(null);
-      setPlayingVersionId(null);
-    };
+  const handleAudioLoadedMetadata = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    setDuration(audio.duration || 0);
+  };
 
-    audio.addEventListener('timeupdate', onTimeUpdate);
-    audio.addEventListener('loadedmetadata', onLoadedMetadata);
-    audio.addEventListener('ended', onEnded);
-    audio.addEventListener('error', onError);
+  const handleAudioEnded = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    // Double guarantee for background screen-off looping on Android WebView/Chrome
+    if (isLoopingRef.current) {
+      audio.currentTime = 0;
+      audio.play().catch(() => {
+        stopPlayback();
+      });
+    } else {
+      stopPlayback();
+    }
+  };
 
-    return () => {
-      audio.pause();
-      audio.removeEventListener('timeupdate', onTimeUpdate);
-      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
-      audio.removeEventListener('ended', onEnded);
-      audio.removeEventListener('error', onError);
-      if (activeObjectUrlRef.current) {
-        URL.revokeObjectURL(activeObjectUrlRef.current);
-      }
-    };
-  }, []);
+  const handleAudioError = () => {
+    if (!playingTrackId) return;
+    setPlaybackError('音檔載入異常，請長按按鈕切換版本或重新快取音檔');
+    stopPlayback();
+  };
 
   // Update helper for current profile
   const updateCurrentProfile = useCallback(
@@ -591,11 +693,24 @@ export const App: React.FC = () => {
 
   return (
     <div className="h-[100dvh] w-screen flex flex-col bg-[#090d16] text-slate-100 select-none overflow-hidden">
+      {/* 掛載於 DOM 之持久音訊核心：支援原生無縫循環與 Android 螢幕熄滅背景前景服務 */}
+      <audio
+        ref={audioRef}
+        loop={isLooping}
+        preload="auto"
+        playsInline
+        onTimeUpdate={handleAudioTimeUpdate}
+        onLoadedMetadata={handleAudioLoadedMetadata}
+        onEnded={handleAudioEnded}
+        onError={handleAudioError}
+        className="hidden"
+      />
+
       {/* 頂部控制列 */}
       <header className="shrink-0 px-3 pt-2.5 pb-2 bg-slate-950/90 border-b border-slate-800/80 space-y-2">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-1.5">
           {/* 左側：情境快速切換下拉選單 */}
-          <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 min-w-0 flex-1">
             <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center shrink-0">
               <Volume2 className="w-4 h-4 text-blue-400" />
             </div>
@@ -606,7 +721,7 @@ export const App: React.FC = () => {
                 stopPlayback();
                 setActiveProfileId(e.target.value);
               }}
-              className="bg-slate-900 border border-slate-700/90 rounded-xl px-2.5 py-1.5 text-xs font-bold text-white truncate max-w-[54vw] focus:outline-none focus:border-blue-500"
+              className="bg-slate-900 border border-slate-700/90 rounded-xl px-2 py-1.5 text-xs font-bold text-white truncate max-w-[42vw] focus:outline-none focus:border-blue-500"
             >
               {profiles.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -619,12 +734,26 @@ export const App: React.FC = () => {
             </span>
           </div>
 
-          {/* 右側：防誤觸鎖定 / 動態配置按鈕 */}
+          {/* 右側：循環播放開關、防誤觸鎖定、動態配置按鈕 */}
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
+              onClick={() => setIsLooping((prev) => !prev)}
+              className={`px-2 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 active:scale-95 transition ${
+                isLooping
+                  ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300'
+                  : 'bg-slate-900 border-slate-700 text-slate-400'
+              }`}
+              title="切換單曲無限循環播放"
+            >
+              <Repeat className="w-3.5 h-3.5" />
+              <span>{isLooping ? '循環開' : '單次'}</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => setIsLocked((prev) => !prev)}
-              className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 active:scale-95 transition ${
+              className={`px-2 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 active:scale-95 transition ${
                 isLocked
                   ? 'bg-slate-900 border-slate-700 text-slate-300'
                   : 'bg-amber-500/20 border-amber-400/60 text-amber-300'
@@ -639,7 +768,7 @@ export const App: React.FC = () => {
               ) : (
                 <>
                   <Unlock className="w-3.5 h-3.5 text-amber-400" />
-                  <span>調配中</span>
+                  <span>調配</span>
                 </>
               )}
             </button>
@@ -650,7 +779,7 @@ export const App: React.FC = () => {
               className="px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1 shadow active:scale-95 transition"
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>配置/音源</span>
+              <span>配置</span>
             </button>
           </div>
         </div>
@@ -772,7 +901,7 @@ export const App: React.FC = () => {
                       {isPlaying && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500 text-slate-950 animate-pulse shrink-0">
                           <Disc3 className="w-3 h-3 animate-spin" />
-                          <span>播放中</span>
+                          <span>{isLooping ? '循環播放中' : '播放中'}</span>
                         </span>
                       )}
                     </div>
