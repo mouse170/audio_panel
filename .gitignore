@@ -1,0 +1,33 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Node / Frontend (if applicable)
+node_modules/
+
+# Distribution, Packaging & Binaries
+*.zip
+*.tar.gz
+*.7z
+runtime/
+dist/
+build/
+*.egg-info/
+models/*.gguf
+models/*.bin
+models/*.onnx
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Temporary files, caches & logs
+*.log
+*.tmp
+*.bak
+session_cache.json
