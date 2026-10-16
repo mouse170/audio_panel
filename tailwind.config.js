@@ -44,7 +44,8 @@ export default {
         'on-error-container': 'var(--md-sys-color-on-error-container)',
       },
       fontFamily: {
-        sans: ['"Roboto Flex"', '"Noto Sans TC"', 'system-ui', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', '"Outfit"', '"Noto Sans TC"', 'system-ui', 'sans-serif'],
+        display: ['"Outfit"', '"Plus Jakarta Sans"', '"Noto Sans TC"', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       }
     },

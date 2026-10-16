@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Check,
+  ChevronDown,
   Layers,
   Lock,
   Pause,
@@ -32,6 +33,7 @@ import {
 import { TrackLongPressSheet } from './components/TrackLongPressSheet';
 import { ConfigAndCloudModal } from './components/ConfigAndCloudModal';
 
+/* Cohesive single-hue Material Design 3 Light Blue tonal hierarchy */
 const M3_ACCENT_STYLES: Record<
   ButtonColorTheme,
   {
@@ -41,27 +43,27 @@ const M3_ACCENT_STYLES: Record<
 > = {
   blue: {
     codeBadge: 'bg-primary text-on-primary',
-    chipStyle: 'bg-primary-fixed text-on-primary-fixed border-primary/20'
+    chipStyle: 'bg-primary-fixed/85 text-on-primary-fixed border-primary/20'
   },
   cyan: {
     codeBadge: 'bg-tertiary text-on-tertiary',
-    chipStyle: 'bg-tertiary-fixed text-on-tertiary-fixed border-tertiary/20'
+    chipStyle: 'bg-tertiary-fixed/85 text-on-tertiary-fixed border-tertiary/20'
   },
   emerald: {
     codeBadge: 'bg-tertiary-container text-on-tertiary-container',
-    chipStyle: 'bg-tertiary-fixed text-on-tertiary-fixed border-tertiary/20'
+    chipStyle: 'bg-tertiary-fixed/85 text-on-tertiary-fixed border-tertiary/20'
   },
   amber: {
     codeBadge: 'bg-secondary text-on-secondary',
-    chipStyle: 'bg-secondary-container text-on-secondary-container border-secondary/20'
+    chipStyle: 'bg-secondary-container/90 text-on-secondary-container border-secondary/20'
   },
   purple: {
     codeBadge: 'bg-primary-container text-on-primary-container',
-    chipStyle: 'bg-primary-fixed text-on-primary-fixed border-primary/20'
+    chipStyle: 'bg-primary-fixed/85 text-on-primary-fixed border-primary/20'
   },
   rose: {
-    codeBadge: 'bg-error text-on-error',
-    chipStyle: 'bg-error-container text-on-error-container border-error/20'
+    codeBadge: 'bg-on-primary-fixed-variant text-on-primary',
+    chipStyle: 'bg-primary-fixed text-on-primary-fixed border-primary/30'
   }
 };
 
@@ -278,7 +280,7 @@ export const App: React.FC = () => {
       } catch (err) {
         stopPlayback();
         setPlaybackError(
-          `播放失敗：${err instanceof Error ? err.message : '請長按按鈕檢查音源設定'}`
+          `無法播放音檔：${err instanceof Error ? err.message : '請長按按鈕檢查音源設定'}`
         );
       }
     },
@@ -312,7 +314,7 @@ export const App: React.FC = () => {
 
   const handleAudioError = () => {
     if (!playingTrackId) return;
-    setPlaybackError('音檔載入異常，請長按按鈕切換版本或重新快取音檔');
+    setPlaybackError('音檔載入失敗，請長按按鈕切換版本或重新快取音檔。');
     stopPlayback();
   };
 
@@ -643,11 +645,11 @@ export const App: React.FC = () => {
     });
   };
 
-  const progressPercent =
-    duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+  const progressRatio =
+    duration > 0 ? Math.min(1, Math.max(0, currentTime / duration)) : 0;
 
   return (
-    <div className="h-[100dvh] w-full max-w-screen-md mx-auto flex flex-col justify-between bg-surface text-on-surface select-none overflow-hidden relative antialiased">
+    <div className="min-h-[100dvh] h-[100dvh] w-full max-w-screen-md mx-auto flex flex-col justify-between text-on-surface select-none overflow-hidden relative antialiased">
       {/* 掛載於 DOM 之持久音訊核心：支援原生無縫循環與 Android 螢幕熄滅背景前景服務 */}
       <audio
         ref={audioRef}
@@ -662,12 +664,15 @@ export const App: React.FC = () => {
       />
 
       {/* 1. COMPACT M3 TOP APP BAR */}
-      <header className="shrink-0 px-3 pt-2 pb-1.5 bg-surface space-y-2">
-        <div className="flex items-center justify-between gap-1.5">
-          {/* Left: Scene Profile Selector Pill */}
-          <div className="flex items-center gap-1.5 min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 bg-surface-container hover:bg-surface-container-high transition-colors px-3 py-1.5 rounded-full text-on-surface border border-outline-variant/50 max-w-full">
-              <SlidersHorizontal className="w-4 h-4 text-primary shrink-0" />
+      <header className="shrink-0 px-3.5 pt-2.5 pb-1.5 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          {/* Left: Custom-Styled M3 Scene Profile Selector Pill */}
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="relative flex items-center bg-surface-container/90 hover:bg-surface-container-high transition duration-200 rounded-full border border-outline-variant/60 shadow-sm max-w-full">
+              <SlidersHorizontal
+                className="w-4 h-4 text-primary ml-3 pointer-events-none shrink-0"
+                strokeWidth={2}
+              />
               <select
                 aria-label="切換情境設定檔"
                 value={activeProfile.id}
@@ -675,7 +680,7 @@ export const App: React.FC = () => {
                   stopPlayback();
                   setActiveProfileId(e.target.value);
                 }}
-                className="bg-transparent text-xs font-bold text-on-surface truncate max-w-[42vw] focus:outline-none cursor-pointer"
+                className="appearance-none bg-transparent pl-2 pr-7 py-1.5 text-xs font-semibold text-on-surface truncate max-w-[44vw] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full cursor-pointer"
               >
                 {profiles.map((p) => (
                   <option key={p.id} value={p.id} className="bg-[var(--card)] text-on-surface">
@@ -683,8 +688,12 @@ export const App: React.FC = () => {
                   </option>
                 ))}
               </select>
+              <ChevronDown
+                className="w-3.5 h-3.5 text-on-surface-variant right-2.5 absolute pointer-events-none"
+                strokeWidth={2}
+              />
             </div>
-            <span className="hidden sm:inline-block text-[10px] text-on-surface-variant font-mono font-semibold">
+            <span className="hidden sm:inline-block text-[10px] text-on-surface-variant font-mono tabular-nums font-medium">
               v{APP_VERSION}
             </span>
           </div>
@@ -695,14 +704,14 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsLooping((prev) => !prev)}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold transition active:scale-95 shadow-sm ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold transition duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isLooping
-                  ? 'bg-primary-fixed text-on-primary-fixed border border-primary/30'
-                  : 'bg-surface-container-high text-on-surface-variant border border-outline-variant/60'
+                  ? 'bg-primary-fixed text-on-primary-fixed border border-primary/25 shadow-sm'
+                  : 'bg-surface-container-high/80 text-on-surface-variant border border-outline-variant/60'
               }`}
               title="切換單曲無限循環播放"
             >
-              <Repeat className="w-3.5 h-3.5 text-primary" />
+              <Repeat className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
               <span>{isLooping ? '循環開' : '單次'}</span>
             </button>
 
@@ -710,21 +719,21 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsLocked((prev) => !prev)}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border transition active:scale-95 ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isLocked
-                  ? 'bg-surface-container-high text-on-surface-variant border-outline-variant/60'
-                  : 'bg-tertiary-fixed text-on-tertiary-fixed border-tertiary/40'
+                  ? 'bg-surface-container-high/80 text-on-surface-variant border-outline-variant/60'
+                  : 'bg-tertiary-fixed text-on-tertiary-fixed border-tertiary/30'
               }`}
               title="切換演出鎖定或編輯模式"
             >
               {isLocked ? (
                 <>
-                  <Lock className="w-3.5 h-3.5 text-primary" />
+                  <Lock className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
                   <span>鎖定</span>
                 </>
               ) : (
                 <>
-                  <Unlock className="w-3.5 h-3.5 text-tertiary" />
+                  <Unlock className="w-3.5 h-3.5 text-tertiary" strokeWidth={2} />
                   <span>調配</span>
                 </>
               )}
@@ -735,16 +744,16 @@ export const App: React.FC = () => {
               type="button"
               onClick={() => setIsConfigOpen(true)}
               aria-label="配置與音源設定"
-              className="w-8 h-8 rounded-full bg-primary text-on-primary hover:bg-primary-container flex items-center justify-center shadow-sm active:scale-95 transition-all"
+              className="w-8 h-8 rounded-full bg-primary text-on-primary hover:bg-primary-container flex items-center justify-center shadow-sm active:scale-95 transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-4 h-4" strokeWidth={2} />
             </button>
           </div>
         </div>
 
         {/* 2. M3 SEGMENTED BUTTON BAR (Global Version Switching) */}
-        <section aria-label="全域版本切換">
-          <div className="grid grid-cols-3 p-0.5 rounded-full bg-surface-container border border-outline-variant/60 items-center text-center">
+        <nav aria-label="全域版本切換">
+          <div className="grid grid-cols-3 p-0.5 rounded-full bg-surface-container/90 border border-outline-variant/60 items-center text-center">
             {[
               { slot: 0, title: '全體切主版 / A' },
               { slot: 1, title: '全體切 A / B 版' },
@@ -756,29 +765,32 @@ export const App: React.FC = () => {
                   key={item.slot}
                   type="button"
                   onClick={() => handleGlobalVersionSwitch(item.slot)}
-                  className={`flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full text-xs transition-all active:scale-95 ${
+                  className={`flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full text-xs transition duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     isGlobalActive
-                      ? 'bg-primary-container text-on-primary shadow-sm font-bold'
-                      : 'text-on-surface-variant hover:text-on-surface font-semibold'
+                      ? 'bg-primary text-on-primary shadow-sm font-semibold'
+                      : 'text-on-surface-variant hover:text-on-surface font-medium'
                   }`}
                 >
-                  {isGlobalActive && <Check className="w-3.5 h-3.5 shrink-0" />}
+                  {isGlobalActive && <Check className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />}
                   <span className="truncate">{item.title}</span>
                 </button>
               );
             })}
           </div>
-        </section>
+        </nav>
       </header>
 
       {/* 錯誤提示列（若有） */}
       {playbackError && (
-        <div className="shrink-0 mx-3 mb-1 px-3 py-1.5 rounded-xl bg-error-container border border-error/30 text-on-error-container text-xs flex items-center justify-between">
+        <div
+          role="alert"
+          className="shrink-0 mx-3.5 mb-1 px-3.5 py-2 rounded-xl bg-error-container border border-error/30 text-on-error-container text-xs flex items-center justify-between"
+        >
           <span className="truncate font-medium">{playbackError}</span>
           <button
             type="button"
             onClick={() => setPlaybackError(null)}
-            className="font-bold ml-2 shrink-0 underline"
+            className="font-semibold ml-2 shrink-0 underline"
           >
             關閉
           </button>
@@ -787,14 +799,15 @@ export const App: React.FC = () => {
 
       {/* 3. MAIN SOUNDBOARD MATRIX: 5 TACTILE FULL-HEIGHT M3 PADS */}
       <main
-        className={`flex-1 min-h-0 px-3 py-1.5 grid gap-2 overflow-hidden ${
+        id="soundboard-main"
+        className={`flex-1 min-h-0 px-3.5 pt-1 pb-2 grid gap-2 overflow-hidden ${
           activeProfile.gridColumns === 2 ? 'grid-cols-2' : 'grid-cols-1'
         }`}
         style={{
           gridAutoRows: '1fr'
         }}
       >
-        {visibleTracks.map((track) => {
+        {visibleTracks.map((track, idx) => {
           const isPlaying = playingTrackId === track.id;
           const activeVer =
             track.versions[track.activeVersionIndex] || track.versions[0];
@@ -806,6 +819,7 @@ export const App: React.FC = () => {
               key={track.id}
               role="button"
               tabIndex={0}
+              style={{ animationDelay: `${idx * 45}ms` }}
               onPointerDown={(e) => handlePointerDown(e, track)}
               onPointerMove={handlePointerMove}
               onPointerUp={() => handlePointerUp(track)}
@@ -821,51 +835,51 @@ export const App: React.FC = () => {
                   handleShortTapTrack(track);
                 }
               }}
-              className={`min-h-0 relative rounded-2xl flex flex-col justify-between p-3 overflow-hidden tactile-pad cursor-pointer ${
+              className={`min-h-0 relative rounded-[22px] flex flex-col justify-between px-3.5 pt-2.5 pb-3 overflow-hidden tactile-pad cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isPlaying
-                  ? 'bg-[var(--card)] border-2 border-primary shadow-md'
-                  : 'bg-surface-container-low hover:bg-surface-container border border-outline-variant/60 shadow-sm'
+                  ? 'm3-surface-active border-2 border-primary'
+                  : 'm3-surface-idle border border-outline-variant/65'
               }`}
             >
-              {/* Live Progress Background Track when playing */}
+              {/* GPU-Accelerated Live Progress Background Track (transform: scaleX instead of width) */}
               {isPlaying && (
                 <>
                   <div
-                    className="absolute left-0 top-0 bottom-0 bg-primary-fixed/65 pointer-events-none transition-all duration-200 ease-linear"
-                    style={{ width: `${progressPercent}%` }}
+                    className="absolute inset-0 bg-primary-fixed/55 origin-left will-change-transform pointer-events-none transition-transform duration-150 ease-linear"
+                    style={{ transform: `scaleX(${progressRatio})` }}
                   />
                   <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary pointer-events-none" />
                 </>
               )}
 
-              {/* Card Top: Number, Track Title, Subtitle & Version Assist Chip */}
+              {/* Card Top: Squircle Number, Track Title, Subtitle & Version Assist Chip */}
               <div className="relative z-10 flex items-start justify-between gap-2 w-full">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span
-                    className={`w-8 h-8 rounded-xl font-mono font-bold text-sm flex items-center justify-center shrink-0 shadow-sm ${accent.codeBadge}`}
+                    className={`w-8 h-8 rounded-[11px] font-mono tabular-nums font-bold text-sm flex items-center justify-center shrink-0 shadow-sm ${accent.codeBadge}`}
                   >
                     {track.code}
                   </span>
                   <div className="min-w-0">
                     <div className="flex items-baseline gap-1.5 truncate">
-                      <h2 className="text-lg sm:text-xl font-extrabold text-on-surface tracking-tight truncate">
+                      <h2 className="font-display text-lg sm:text-xl font-bold tracking-[-0.02em] text-on-surface truncate">
                         {track.title}
                       </h2>
-                      <span className="text-xs font-semibold text-primary truncate">
+                      <span className="text-xs font-medium text-on-surface-variant truncate">
                         ({track.subtitle})
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Right: Animated Equalizer + Version Assist Chip */}
+                {/* Right: GPU-Animated Equalizer + Version Assist Chip */}
                 <div className="flex items-center gap-1.5 shrink-0">
                   {isPlaying && (
-                    <div className="flex items-center gap-1 bg-primary text-on-primary rounded-full px-2.5 py-0.5 text-[11px] font-bold shadow-sm">
+                    <div className="flex items-center gap-1 bg-primary text-on-primary rounded-full px-2.5 py-0.5 text-[11px] font-semibold shadow-sm">
                       <div className="flex items-end gap-[2px] h-3 mr-0.5">
-                        <span className="w-[2.5px] bg-[var(--primary-foreground)] rounded-full eq-bar-1" />
-                        <span className="w-[2.5px] bg-[var(--primary-foreground)] rounded-full eq-bar-2" />
-                        <span className="w-[2.5px] bg-[var(--primary-foreground)] rounded-full eq-bar-3" />
+                        <span className="w-[2.5px] h-3 bg-[var(--primary-foreground)] rounded-full eq-bar-1" />
+                        <span className="w-[2.5px] h-3 bg-[var(--primary-foreground)] rounded-full eq-bar-2" />
+                        <span className="w-[2.5px] h-3 bg-[var(--primary-foreground)] rounded-full eq-bar-3" />
                       </div>
                       <span>{isLooping ? '循環中' : '播放中'}</span>
                     </div>
@@ -882,19 +896,19 @@ export const App: React.FC = () => {
                         setLongPressTrackId(track.id);
                       }
                     }}
-                    className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 ${accent.chipStyle}`}
+                    className={`px-2.5 py-0.5 rounded-lg border text-xs font-semibold flex items-center gap-1 ${accent.chipStyle}`}
                   >
-                    <Layers className="w-3 h-3 opacity-80" />
+                    <Layers className="w-3 h-3 opacity-80" strokeWidth={2} />
                     <span>{activeVer?.shortBadge || '預設'}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Card Bottom: Audio Filename / Timecode & Tactile M3 Trigger */}
+              {/* Card Bottom: Tabular Timecode / Audio Filename & Optical-Aligned M3 Trigger */}
               <div className="relative z-10 flex items-center justify-between gap-2 pt-1.5 border-t border-outline-variant/30 mt-auto w-full">
-                <div className="flex items-center gap-2 min-w-0 truncate">
+                <div className="flex items-center gap-2 min-w-0 truncate tabular-nums">
                   {isPlaying ? (
-                    <span className="font-mono text-xs font-bold text-on-surface">
+                    <span className="font-mono text-xs font-bold text-on-surface tabular-nums">
                       {formatTime(currentTime)}{' '}
                       <span className="text-on-surface-variant font-normal">
                         / {formatTime(duration)}
@@ -907,7 +921,7 @@ export const App: React.FC = () => {
                   )}
 
                   {isCached && (
-                    <span className="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold shrink-0">
+                    <span className="px-2 py-0.5 rounded-md bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-semibold shrink-0">
                       離線快取
                     </span>
                   )}
@@ -916,13 +930,16 @@ export const App: React.FC = () => {
                 {/* Right: M3 Filled Tonal Trigger Pill */}
                 <div className="flex items-center gap-1.5 shrink-0">
                   {isPlaying ? (
-                    <div className="h-8 px-3.5 rounded-full bg-primary text-on-primary flex items-center gap-1.5 text-xs font-bold shadow-sm">
-                      <Pause className="w-3.5 h-3.5 fill-current" />
+                    <div className="h-8 px-3.5 rounded-full bg-primary text-on-primary flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+                      <Pause className="w-3.5 h-3.5 fill-current" strokeWidth={2} />
                       <span>點擊即停</span>
                     </div>
                   ) : (
-                    <div className="h-8 px-3.5 rounded-full bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed flex items-center gap-1 text-xs font-bold shadow-sm">
-                      <Play className="w-3.5 h-3.5 fill-current text-primary" />
+                    <div className="h-8 px-3.5 rounded-full bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed flex items-center gap-1.5 text-xs font-semibold shadow-sm transition duration-200">
+                      <Play
+                        className="w-3.5 h-3.5 fill-current text-primary translate-x-[0.5px]"
+                        strokeWidth={2}
+                      />
                       <span>短按播放・長按切版</span>
                     </div>
                   )}
@@ -934,8 +951,8 @@ export const App: React.FC = () => {
       </main>
 
       {/* 4. ANDROID GESTURE HOME INDICATOR */}
-      <footer className="w-full py-1 flex justify-center items-center shrink-0 bg-surface">
-        <div className="w-20 h-1 bg-outline-variant rounded-full" />
+      <footer className="w-full py-1 flex justify-center items-center shrink-0">
+        <div className="w-20 h-1 bg-outline-variant/80 rounded-full" />
       </footer>
 
       {/* 長按單曲彈出之版本切換、應援歌詞與單曲音源設定視窗 */}

@@ -4,44 +4,44 @@
 
 @layer base {
   html {
-    /* Stitch Design System: Precision M3 Audio System (Light Blue Theme) */
-    --md-sys-color-surface: #f4f9ff;
-    --md-sys-color-surface-bright: #f8fbff;
-    --md-sys-color-surface-dim: #d3e4f4;
+    /* Calibrated Material Design 3 Light Blue Tonal System (Desaturated, cohesive single-accent hierarchy) */
+    --md-sys-color-surface: #eef6ff;
+    --md-sys-color-surface-bright: #f7fbff;
+    --md-sys-color-surface-dim: #cfe1f2;
     --md-sys-color-surface-container-lowest: #ffffff;
-    --md-sys-color-surface-container-low: #eaf3fc;
-    --md-sys-color-surface-container: #e1eefb;
-    --md-sys-color-surface-container-high: #d6e7f8;
-    --md-sys-color-surface-container-highest: #cbe0f5;
-    --md-sys-color-surface-variant: #d7e5f2;
-    --md-sys-color-on-surface: #0f1d2a;
-    --md-sys-color-on-surface-variant: #3b4d5e;
-    --md-sys-color-primary: #006493;
+    --md-sys-color-surface-container-low: #e5f1fc;
+    --md-sys-color-surface-container: #dbeafa;
+    --md-sys-color-surface-container-high: #cfe2f6;
+    --md-sys-color-surface-container-highest: #c2d9f0;
+    --md-sys-color-surface-variant: #d4e4f4;
+    --md-sys-color-on-surface: #0c1b29;
+    --md-sys-color-on-surface-variant: #3c5266;
+    --md-sys-color-primary: #005c8a;
     --md-sys-color-on-primary: #ffffff;
-    --md-sys-color-primary-container: #0277bd;
-    --md-sys-color-on-primary-container: #e1f5fe;
-    --md-sys-color-primary-fixed: #cae6ff;
-    --md-sys-color-primary-fixed-dim: #9ad1ff;
-    --md-sys-color-on-primary-fixed: #001e30;
-    --md-sys-color-on-primary-fixed-variant: #004b70;
-    --md-sys-color-secondary: #486173;
+    --md-sys-color-primary-container: #0272ab;
+    --md-sys-color-on-primary-container: #e6f6ff;
+    --md-sys-color-primary-fixed: #c7e4ff;
+    --md-sys-color-primary-fixed-dim: #9ecff8;
+    --md-sys-color-on-primary-fixed: #001d2e;
+    --md-sys-color-on-primary-fixed-variant: #00466b;
+    --md-sys-color-secondary: #435e73;
     --md-sys-color-on-secondary: #ffffff;
-    --md-sys-color-secondary-container: #cbe6ff;
-    --md-sys-color-on-secondary-container: #001e30;
-    --md-sys-color-tertiary: #006874;
+    --md-sys-color-secondary-container: #c9e4f8;
+    --md-sys-color-on-secondary-container: #092335;
+    --md-sys-color-tertiary: #146373;
     --md-sys-color-on-tertiary: #ffffff;
-    --md-sys-color-tertiary-container: #00838f;
-    --md-sys-color-on-tertiary-container: #e0f7fa;
-    --md-sys-color-tertiary-fixed: #b2ebf2;
-    --md-sys-color-on-tertiary-fixed: #001f24;
-    --md-sys-color-outline: #6c8093;
-    --md-sys-color-outline-variant: #b8cde0;
-    --md-sys-color-error: #ba1a1a;
+    --md-sys-color-tertiary-container: #007b8c;
+    --md-sys-color-on-tertiary-container: #e3f9fc;
+    --md-sys-color-tertiary-fixed: #bcebf2;
+    --md-sys-color-on-tertiary-fixed: #001f25;
+    --md-sys-color-outline: #687f94;
+    --md-sys-color-outline-variant: #b7cde0;
+    --md-sys-color-error: #b3261e;
     --md-sys-color-on-error: #ffffff;
-    --md-sys-color-error-container: #ffdad6;
-    --md-sys-color-on-error-container: #93000a;
+    --md-sys-color-error-container: #f9dedc;
+    --md-sys-color-on-error-container: #410e0b;
 
-    /* Semantic aliases per stitch-design specification */
+    /* Semantic aliases */
     --background: var(--md-sys-color-surface);
     --card: var(--md-sys-color-surface-container-lowest);
     --content: var(--md-sys-color-surface-container-low);
@@ -56,44 +56,110 @@
   }
 
   html, body, #root {
+    min-height: 100dvh;
     height: 100dvh;
-    width: 100vw;
+    width: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: var(--background);
+    background-image:
+      radial-gradient(at 15% 0%, rgba(158, 207, 248, 0.35) 0px, transparent 55%),
+      radial-gradient(at 85% 100%, rgba(188, 235, 242, 0.32) 0px, transparent 55%);
     color: var(--foreground);
-    font-family: "Roboto Flex", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    font-family: "Plus Jakarta Sans", "Outfit", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
 }
 
-/* Equalizer micro-animation from Stitch M3 design */
-@keyframes eq1 {
-  0%, 100% { height: 4px; }
-  50% { height: 14px; }
-}
-@keyframes eq2 {
-  0%, 100% { height: 15px; }
-  50% { height: 5px; }
-}
-@keyframes eq3 {
-  0%, 100% { height: 7px; }
-  50% { height: 14px; }
+/* Tabular figures for numbers and timecodes */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
-.eq-bar-1 { animation: eq1 0.75s ease-in-out infinite; }
-.eq-bar-2 { animation: eq2 0.65s ease-in-out infinite 0.15s; }
-.eq-bar-3 { animation: eq3 0.85s ease-in-out infinite 0.3s; }
+/* Colored, hue-tinted M3 elevations & glass refraction */
+.m3-surface-idle {
+  background-color: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+    0 2px 8px -2px rgba(0, 70, 107, 0.06),
+    0 1px 3px -1px rgba(0, 70, 107, 0.04);
+}
 
-/* Tactile pad feedback from Stitch M3 design */
+.m3-surface-idle:hover {
+  background-color: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+    0 6px 16px -4px rgba(0, 92, 138, 0.10);
+}
+
+.m3-surface-active {
+  background-color: var(--card);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 12px 28px -6px rgba(0, 92, 138, 0.18),
+    0 4px 10px -2px rgba(0, 92, 138, 0.10);
+}
+
+.m3-dialog-shadow {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+    0 24px 48px -12px rgba(12, 27, 41, 0.24),
+    0 8px 20px -6px rgba(0, 92, 138, 0.12);
+}
+
+/* GPU-accelerated equalizer micro-animation (transform scaleY instead of height) */
+@keyframes eqScale1 {
+  0%, 100% { transform: scaleY(0.28); }
+  50% { transform: scaleY(1); }
+}
+@keyframes eqScale2 {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.35); }
+}
+@keyframes eqScale3 {
+  0%, 100% { transform: scaleY(0.45); }
+  50% { transform: scaleY(0.95); }
+}
+
+.eq-bar-1 {
+  transform-origin: bottom;
+  animation: eqScale1 0.75s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.eq-bar-2 {
+  transform-origin: bottom;
+  animation: eqScale2 0.65s cubic-bezier(0.22, 1, 0.36, 1) infinite 0.15s;
+}
+.eq-bar-3 {
+  transform-origin: bottom;
+  animation: eqScale3 0.85s cubic-bezier(0.22, 1, 0.36, 1) infinite 0.3s;
+}
+
+/* Staggered spring card entry & tactile press physics */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .tactile-pad {
-  transition: transform 0.08s ease-out, background-color 0.15s ease, box-shadow 0.15s ease;
+  animation: cardEnter 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   -webkit-tap-highlight-color: transparent;
 }
 .tactile-pad:active {
-  transform: scale(0.985);
+  transform: scale(0.985) translateY(1px);
 }
 
 /* Modern Web Guidance: Prevent underlying page scroll on native modal dialogs */
@@ -104,8 +170,8 @@ dialog:modal {
 dialog::backdrop {
   overflow: hidden;
   overscroll-behavior: contain;
-  background-color: rgba(15, 29, 42, 0.42);
-  backdrop-filter: blur(6px);
+  background-color: rgba(12, 27, 41, 0.38);
+  backdrop-filter: blur(8px);
 }
 
 /* Custom subtle scrollbars inside M3 modal sheets */

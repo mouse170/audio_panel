@@ -73,12 +73,15 @@ export const NativeModal: React.FC<NativeModalProps> = ({
       ref={dialogRef}
       closedby="any"
       aria-labelledby={titleId}
-      className="w-[94vw] max-w-lg max-h-[88dvh] rounded-[28px] bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] shadow-2xl p-0 overflow-hidden m-auto"
+      className="w-[94vw] max-w-lg max-h-[88dvh] rounded-[26px] bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] m3-dialog-shadow p-0 overflow-hidden m-auto"
     >
       <div className="flex flex-col max-h-[88dvh]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)] bg-surface-container-low shrink-0">
-          <div className="min-w-0 pr-2">
-            <h2 id={titleId} className="text-base font-bold text-on-surface truncate">
+        <div className="flex items-center justify-between px-5 pt-4 pb-3.5 border-b border-[var(--border)] bg-surface-container-low/80 shrink-0">
+          <div className="min-w-0 pr-3">
+            <h2
+              id={titleId}
+              className="font-display text-base font-bold tracking-[-0.015em] text-on-surface truncate"
+            >
               {title}
             </h2>
             {subtitle && (
@@ -89,12 +92,12 @@ export const NativeModal: React.FC<NativeModalProps> = ({
             type="button"
             onClick={() => dialogRef.current?.close()}
             aria-label="關閉視窗"
-            className="w-9 h-9 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center active:scale-95 transition shrink-0"
+            className="w-10 h-10 rounded-xl bg-surface-container-high/80 hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center active:scale-95 transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" strokeWidth={2} />
           </button>
         </div>
-        <div className="p-4 overflow-y-auto custom-scroll flex-1 bg-[var(--card)]">
+        <div className="px-5 pt-4 pb-5 overflow-y-auto custom-scroll flex-1 bg-[var(--card)]">
           {children}
         </div>
       </div>
