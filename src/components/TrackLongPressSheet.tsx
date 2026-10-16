@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import {
   Check,
   CloudDownload,
-  FileAudio,
   FileText,
   FolderUp,
   Layers,
@@ -30,13 +29,13 @@ interface TrackLongPressSheetProps {
   onDeleteVersionFromTrack: (trackId: string, versionId: string) => void;
 }
 
-const COLOR_OPTIONS: { value: ButtonColorTheme; label: string; dotClass: string }[] = [
-  { value: 'blue', label: '電光藍', dotClass: 'bg-blue-500' },
-  { value: 'amber', label: '應援金', dotClass: 'bg-amber-500' },
-  { value: 'emerald', label: '競技綠', dotClass: 'bg-emerald-500' },
-  { value: 'purple', label: '狂熱紫', dotClass: 'bg-purple-500' },
-  { value: 'rose', label: '決戰紅', dotClass: 'bg-rose-500' },
-  { value: 'cyan', label: '極速青', dotClass: 'bg-cyan-500' }
+const COLOR_OPTIONS: { value: ButtonColorTheme; label: string }[] = [
+  { value: 'blue', label: 'M3 經典淡藍' },
+  { value: 'cyan', label: 'M3 冰川青藍' },
+  { value: 'emerald', label: 'M3 薄荷青綠' },
+  { value: 'amber', label: 'M3 暖陽琥珀' },
+  { value: 'purple', label: 'M3 薰衣草紫' },
+  { value: 'rose', label: 'M3 珊瑚玫瑰' }
 ];
 
 export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
@@ -116,27 +115,27 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
         onChange={handleFileChange}
       />
 
-      {/* 分頁導覽列 */}
-      <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-950/90 rounded-xl border border-slate-800 mb-3.5">
+      {/* M3 Segmented Pill Bar */}
+      <div className="grid grid-cols-3 gap-1 p-1 bg-surface-container rounded-full border border-outline-variant/60 mb-3.5">
         <button
           type="button"
           onClick={() => setActiveTab('versions')}
-          className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition ${
+          className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-full text-xs font-bold transition ${
             activeTab === 'versions'
-              ? 'bg-blue-600 text-white shadow'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-primary text-on-primary shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           <Layers className="w-3.5 h-3.5" />
-          <span>版本切換 ({track.versions.length})</span>
+          <span>版本 ({track.versions.length})</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('lyrics')}
-          className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition ${
+          className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-full text-xs font-bold transition ${
             activeTab === 'lyrics'
-              ? 'bg-blue-600 text-white shadow'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-primary text-on-primary shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
@@ -145,10 +144,10 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
         <button
           type="button"
           onClick={() => setActiveTab('config')}
-          className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition ${
+          className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-full text-xs font-bold transition ${
             activeTab === 'config'
-              ? 'bg-blue-600 text-white shadow'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-primary text-on-primary shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           <Settings2 className="w-3.5 h-3.5" />
@@ -157,7 +156,7 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
       </div>
 
       {statusMsg && (
-        <div className="mb-3 px-3 py-2 rounded-xl bg-blue-950/80 border border-blue-700/60 text-xs text-blue-200">
+        <div className="mb-3 px-3.5 py-2.5 rounded-2xl bg-primary-fixed text-on-primary-fixed border border-primary/30 text-xs font-medium">
           {statusMsg}
         </div>
       )}
@@ -174,10 +173,10 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
             return (
               <div
                 key={ver.id}
-                className={`rounded-xl border transition ${
+                className={`rounded-2xl border transition ${
                   isSelected
-                    ? 'bg-blue-950/40 border-blue-500/80 shadow-md'
-                    : 'bg-slate-800/50 border-slate-700/70'
+                    ? 'bg-primary-fixed/40 border-primary shadow-sm'
+                    : 'bg-surface-container-low border-outline-variant/60'
                 }`}
               >
                 <div className="p-3 flex items-center justify-between gap-2">
@@ -191,29 +190,29 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
                   >
                     <div className="flex items-center gap-2">
                       <span
-                        className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                           isSelected
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-slate-700 text-slate-300'
+                            ? 'bg-primary text-on-primary'
+                            : 'bg-surface-container-high text-on-surface-variant'
                         }`}
                       >
                         {isSelected ? <Check className="w-3.5 h-3.5" /> : idx + 1}
                       </span>
-                      <span className="font-bold text-sm text-white truncate">
+                      <span className="font-bold text-sm text-on-surface truncate">
                         {ver.label}
                       </span>
-                      <span className="px-2 py-0.5 text-[11px] font-semibold rounded-md bg-slate-700/90 text-slate-200 shrink-0">
+                      <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-primary-fixed text-on-primary-fixed shrink-0">
                         {ver.shortBadge}
                       </span>
                     </div>
-                    <div className="mt-1 pl-7 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-400">
-                      <span className="truncate">{ver.originalFileName}</span>
+                    <div className="mt-1 pl-8 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-on-surface-variant">
+                      <span className="truncate font-mono">{ver.originalFileName}</span>
                       {cachedMeta ? (
-                        <span className="text-emerald-400 font-medium">
+                        <span className="text-tertiary font-bold">
                           [{cachedMeta.sourceType === 'local' ? '手機本地檔' : '已快取'} {(cachedMeta.size / 1024 / 1024).toFixed(1)} MB]
                         </span>
                       ) : (
-                        <span className="text-sky-400 font-medium">[內建音源就緒]</span>
+                        <span className="text-primary font-semibold">[內建音源就緒]</span>
                       )}
                     </div>
                   </button>
@@ -226,7 +225,7 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
                         onClose();
                       }}
                       title="切換並立即播放"
-                      className="px-2.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 active:scale-95 transition"
+                      className="px-3 py-2 rounded-full bg-primary hover:bg-primary-container text-on-primary text-xs font-bold flex items-center gap-1 active:scale-95 transition shadow-sm"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       <span>即播</span>
@@ -234,7 +233,7 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
                     <button
                       type="button"
                       onClick={() => setExpandedVersionId(isExpanded ? null : ver.id)}
-                      className="px-2.5 py-2 rounded-lg bg-slate-700/80 hover:bg-slate-700 text-slate-200 text-xs font-medium active:scale-95 transition"
+                      className="px-3 py-2 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold active:scale-95 transition"
                     >
                       音源
                     </button>
@@ -242,13 +241,13 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
                 </div>
 
                 {isExpanded && (
-                  <div className="px-3 pb-3 pt-2 border-t border-slate-700/60 bg-slate-900/60 space-y-2.5 text-xs">
+                  <div className="px-3 pb-3 pt-2.5 border-t border-outline-variant/50 bg-surface-container/60 space-y-2.5 text-xs rounded-b-2xl">
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
                         disabled={isBusy}
                         onClick={() => handleTriggerLocalPick(ver.id)}
-                        className="flex-1 py-2 px-3 rounded-lg bg-indigo-600/90 hover:bg-indigo-500 text-white font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition disabled:opacity-50"
+                        className="flex-1 py-2 px-3 rounded-full bg-primary text-on-primary font-bold flex items-center justify-center gap-1.5 active:scale-95 transition disabled:opacity-50 shadow-sm"
                       >
                         <FolderUp className="w-4 h-4" />
                         <span>選取手機本地音檔 (.mpeg/.mp3)</span>
@@ -261,7 +260,7 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
                             await onResetVersionCache(ver.id);
                             setStatusMsg(`已還原為預設內建音源：${ver.shortBadge}`);
                           }}
-                          className="py-2 px-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center gap-1"
+                          className="py-2 px-3 rounded-full bg-surface-container-highest text-on-surface font-semibold flex items-center gap-1"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                           <span>還原預設</span>
@@ -270,7 +269,7 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-[11px] text-slate-400">
+                      <label className="block text-[11px] font-medium text-on-surface-variant">
                         網路音檔 URL 或 Google Drive 檔案連結 / ID（下載至本機快取）：
                       </label>
                       <div className="flex gap-1.5">
@@ -281,13 +280,13 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
                             setUrlInputs((prev) => ({ ...prev, [ver.id]: e.target.value }))
                           }
                           placeholder="貼上音檔直連網址或 Google Drive 連結"
-                          className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
+                          className="flex-1 bg-[var(--card)] border border-outline-variant rounded-xl px-3 py-1.5 text-xs text-on-surface focus:outline-none focus:border-primary"
                         />
                         <button
                           type="button"
                           disabled={isBusy}
                           onClick={() => handleDownloadClick(ver)}
-                          className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold flex items-center gap-1 shrink-0 disabled:opacity-50"
+                          className="px-3.5 py-1.5 rounded-full bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-bold flex items-center gap-1 shrink-0 disabled:opacity-50"
                         >
                           <CloudDownload className="w-3.5 h-3.5" />
                           <span>{isBusy ? '處理中' : '下載快取'}</span>
@@ -300,7 +299,7 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
                         <button
                           type="button"
                           onClick={() => onDeleteVersionFromTrack(track.id, ver.id)}
-                          className="text-rose-400 hover:text-rose-300 flex items-center gap-1 text-[11px]"
+                          className="text-error font-semibold flex items-center gap-1 text-[11px]"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           <span>刪除此子版本</span>
@@ -314,22 +313,22 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
           })}
 
           {/* 新增子版本區塊 */}
-          <div className="pt-2 border-t border-slate-800">
-            <p className="text-xs font-semibold text-slate-400 mb-2">新增此曲目的其他版本：</p>
+          <div className="pt-2.5 border-t border-outline-variant/50">
+            <p className="text-xs font-bold text-on-surface-variant mb-2">新增此曲目的其他版本：</p>
             <div className="flex gap-1.5">
               <input
                 type="text"
                 value={newVerLabel}
                 onChange={(e) => setNewVerLabel(e.target.value)}
                 placeholder="版本全名 (例：C 版：Remix)"
-                className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                className="flex-1 bg-surface-container-low border border-outline-variant rounded-xl px-3 py-1.5 text-xs text-on-surface"
               />
               <input
                 type="text"
                 value={newVerBadge}
                 onChange={(e) => setNewVerBadge(e.target.value)}
                 placeholder="短標籤 (例：Remix)"
-                className="w-28 bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                className="w-28 bg-surface-container-low border border-outline-variant rounded-xl px-3 py-1.5 text-xs text-on-surface"
               />
               <button
                 type="button"
@@ -343,7 +342,7 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
                   setNewVerLabel('');
                   setNewVerBadge('');
                 }}
-                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1 shrink-0"
+                className="px-3.5 py-1.5 rounded-full bg-primary text-on-primary text-xs font-bold flex items-center gap-1 shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>新增</span>
@@ -356,20 +355,20 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
       {/* 分頁 2：歌詞檢視與編輯 */}
       {activeTab === 'lyrics' && (
         <div className="space-y-3">
-          <div className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 max-h-[52dvh] overflow-y-auto custom-scroll">
-            <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-100">
+          <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/60 max-h-[52dvh] overflow-y-auto custom-scroll">
+            <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-on-surface font-medium">
               {track.lyrics || '尚無歌詞內容'}
             </pre>
           </div>
-          <details className="text-xs text-slate-400">
-            <summary className="cursor-pointer py-1 font-medium text-slate-300">
+          <details className="text-xs text-on-surface-variant">
+            <summary className="cursor-pointer py-1 font-bold text-primary">
               編輯此曲目歌詞內容
             </summary>
             <textarea
               rows={6}
               value={track.lyrics}
               onChange={(e) => onUpdateTrackMeta(track.id, { lyrics: e.target.value })}
-              className="mt-2 w-full rounded-xl bg-slate-950 border border-slate-700 p-2.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
+              className="mt-2 w-full rounded-2xl bg-surface-container-low border border-outline-variant p-3 text-xs text-on-surface focus:outline-none focus:border-primary"
             />
           </details>
         </div>
@@ -380,63 +379,63 @@ export const TrackLongPressSheet: React.FC<TrackLongPressSheetProps> = ({
         <div className="space-y-3 text-xs">
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="block text-slate-400 mb-1">編號代號</label>
+              <label className="block font-semibold text-on-surface-variant mb-1">編號代號</label>
               <input
                 type="text"
                 value={track.code}
                 onChange={(e) => onUpdateTrackMeta(track.id, { code: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white font-bold"
+                className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-3 py-2 text-on-surface font-bold"
               />
             </div>
             <div className="col-span-2">
-              <label className="block text-slate-400 mb-1">按鈕主標題（曲名）</label>
+              <label className="block font-semibold text-on-surface-variant mb-1">按鈕主標題（曲名）</label>
               <input
                 type="text"
                 value={track.title}
                 onChange={(e) => onUpdateTrackMeta(track.id, { title: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white font-bold"
+                className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-3 py-2 text-on-surface font-bold"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-400 mb-1">用途說明 / 副標題</label>
+            <label className="block font-semibold text-on-surface-variant mb-1">用途說明 / 副標題</label>
             <input
               type="text"
               value={track.subtitle}
               onChange={(e) => onUpdateTrackMeta(track.id, { subtitle: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white"
+              className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-3 py-2 text-on-surface"
             />
           </div>
 
           <div>
-            <label className="block text-slate-400 mb-1.5">按鈕視覺識別色系</label>
-            <div className="grid grid-cols-3 gap-2">
+            <label className="block font-semibold text-on-surface-variant mb-1.5">M3 卡片色調樣式</label>
+            <div className="grid grid-cols-2 gap-2">
               {COLOR_OPTIONS.map((c) => (
                 <button
                   key={c.value}
                   type="button"
                   onClick={() => onUpdateTrackMeta(track.id, { colorTheme: c.value })}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border font-semibold transition ${
+                  className={`flex items-center justify-between px-3 py-2 rounded-xl border font-bold transition ${
                     track.colorTheme === c.value
-                      ? 'bg-slate-800 border-white text-white'
-                      : 'bg-slate-900 border-slate-800 text-slate-400'
+                      ? 'bg-primary-fixed border-primary text-on-primary-fixed'
+                      : 'bg-surface-container-low border-outline-variant/60 text-on-surface-variant'
                   }`}
                 >
-                  <span className={`w-3 h-3 rounded-full ${c.dotClass}`} />
                   <span>{c.label}</span>
+                  {track.colorTheme === c.value && <Check className="w-3.5 h-3.5 text-primary" />}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-            <span className="text-slate-300 font-medium">於當前情境面板顯示此按鈕</span>
+          <div className="pt-2 border-t border-outline-variant/50 flex items-center justify-between">
+            <span className="text-on-surface font-semibold">於當前情境面板顯示此按鈕</span>
             <input
               type="checkbox"
               checked={track.visible}
               onChange={(e) => onUpdateTrackMeta(track.id, { visible: e.target.checked })}
-              className="w-4 h-4 accent-blue-500"
+              className="w-4 h-4 accent-[var(--primary)]"
             />
           </div>
         </div>

@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Disc3,
+  Check,
   Layers,
   Lock,
+  Pause,
   Play,
   Repeat,
+  Settings,
   SlidersHorizontal,
-  Square,
-  Unlock,
-  Volume2
+  Unlock
 } from 'lucide-react';
 import {
   AudioVersion,
@@ -32,71 +32,36 @@ import {
 import { TrackLongPressSheet } from './components/TrackLongPressSheet';
 import { ConfigAndCloudModal } from './components/ConfigAndCloudModal';
 
-const THEME_STYLES: Record<
+const M3_ACCENT_STYLES: Record<
   ButtonColorTheme,
   {
-    idleBg: string;
-    idleBorder: string;
-    activeBg: string;
-    activeBorder: string;
-    progressFill: string;
-    badgeBg: string;
-    codeBg: string;
+    codeBadge: string;
+    chipStyle: string;
   }
 > = {
   blue: {
-    idleBg: 'bg-slate-900/90 hover:bg-slate-800/90',
-    idleBorder: 'border-blue-500/40',
-    activeBg: 'bg-blue-950/80',
-    activeBorder: 'border-blue-400 ring-2 ring-blue-400/50 shadow-[0_0_25px_rgba(59,130,246,0.35)]',
-    progressFill: 'bg-blue-500/30',
-    badgeBg: 'bg-blue-500/20 text-blue-200 border-blue-400/40',
-    codeBg: 'bg-blue-600 text-white'
-  },
-  amber: {
-    idleBg: 'bg-slate-900/90 hover:bg-slate-800/90',
-    idleBorder: 'border-amber-500/40',
-    activeBg: 'bg-amber-950/80',
-    activeBorder: 'border-amber-400 ring-2 ring-amber-400/50 shadow-[0_0_25px_rgba(245,158,11,0.35)]',
-    progressFill: 'bg-amber-500/30',
-    badgeBg: 'bg-amber-500/20 text-amber-200 border-amber-400/40',
-    codeBg: 'bg-amber-500 text-slate-950'
-  },
-  emerald: {
-    idleBg: 'bg-slate-900/90 hover:bg-slate-800/90',
-    idleBorder: 'border-emerald-500/40',
-    activeBg: 'bg-emerald-950/80',
-    activeBorder: 'border-emerald-400 ring-2 ring-emerald-400/50 shadow-[0_0_25px_rgba(16,185,129,0.35)]',
-    progressFill: 'bg-emerald-500/30',
-    badgeBg: 'bg-emerald-500/20 text-emerald-200 border-emerald-400/40',
-    codeBg: 'bg-emerald-500 text-slate-950'
-  },
-  purple: {
-    idleBg: 'bg-slate-900/90 hover:bg-slate-800/90',
-    idleBorder: 'border-purple-500/40',
-    activeBg: 'bg-purple-950/80',
-    activeBorder: 'border-purple-400 ring-2 ring-purple-400/50 shadow-[0_0_25px_rgba(168,85,247,0.35)]',
-    progressFill: 'bg-purple-500/30',
-    badgeBg: 'bg-purple-500/20 text-purple-200 border-purple-400/40',
-    codeBg: 'bg-purple-600 text-white'
-  },
-  rose: {
-    idleBg: 'bg-slate-900/90 hover:bg-slate-800/90',
-    idleBorder: 'border-rose-500/40',
-    activeBg: 'bg-rose-950/80',
-    activeBorder: 'border-rose-400 ring-2 ring-rose-400/50 shadow-[0_0_25px_rgba(244,63,94,0.35)]',
-    progressFill: 'bg-rose-500/30',
-    badgeBg: 'bg-rose-500/20 text-rose-200 border-rose-400/40',
-    codeBg: 'bg-rose-600 text-white'
+    codeBadge: 'bg-primary text-on-primary',
+    chipStyle: 'bg-primary-fixed text-on-primary-fixed border-primary/20'
   },
   cyan: {
-    idleBg: 'bg-slate-900/90 hover:bg-slate-800/90',
-    idleBorder: 'border-cyan-500/40',
-    activeBg: 'bg-cyan-950/80',
-    activeBorder: 'border-cyan-400 ring-2 ring-cyan-400/50 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
-    progressFill: 'bg-cyan-500/30',
-    badgeBg: 'bg-cyan-500/20 text-cyan-200 border-cyan-400/40',
-    codeBg: 'bg-cyan-500 text-slate-950'
+    codeBadge: 'bg-tertiary text-on-tertiary',
+    chipStyle: 'bg-tertiary-fixed text-on-tertiary-fixed border-tertiary/20'
+  },
+  emerald: {
+    codeBadge: 'bg-tertiary-container text-on-tertiary-container',
+    chipStyle: 'bg-tertiary-fixed text-on-tertiary-fixed border-tertiary/20'
+  },
+  amber: {
+    codeBadge: 'bg-secondary text-on-secondary',
+    chipStyle: 'bg-secondary-container text-on-secondary-container border-secondary/20'
+  },
+  purple: {
+    codeBadge: 'bg-primary-container text-on-primary-container',
+    chipStyle: 'bg-primary-fixed text-on-primary-fixed border-primary/20'
+  },
+  rose: {
+    codeBadge: 'bg-error text-on-error',
+    chipStyle: 'bg-error-container text-on-error-container border-error/20'
   }
 };
 
@@ -117,7 +82,7 @@ export const App: React.FC = () => {
 
   // Playback state
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
-  const [playingVersionId, setPlayingVersionId] = useState<string | null>(null);
+  const [, setPlayingVersionId] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
@@ -167,7 +132,7 @@ export const App: React.FC = () => {
     getAllCachedAudioMeta().then(setCachedMetaMap);
   }, []);
 
-  // Screen Wake Lock management (keeps screen awake or cleanly re-acquires when unlocked)
+  // Screen Wake Lock management
   const requestWakeLock = useCallback(async () => {
     if ('wakeLock' in navigator && document.visibilityState === 'visible') {
       try {
@@ -236,9 +201,9 @@ export const App: React.FC = () => {
           album: activeProfile.name,
           artwork: [
             {
-              src: new URL('./icon.svg', window.location.href).href,
-              sizes: '512x512',
-              type: 'image/svg+xml'
+              src: new URL('./favicon.png', window.location.href).href,
+              sizes: '256x256',
+              type: 'image/png'
             }
           ]
         });
@@ -279,7 +244,6 @@ export const App: React.FC = () => {
       const audio = audioRef.current;
       if (!audio) return;
 
-      // Pause current before switching source
       audio.pause();
       if (activeObjectUrlRef.current) {
         URL.revokeObjectURL(activeObjectUrlRef.current);
@@ -321,7 +285,6 @@ export const App: React.FC = () => {
     [requestWakeLock, stopPlayback, updateMediaSession]
   );
 
-  // Audio element event handlers for progress & seamless background looping
   const handleAudioTimeUpdate = () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -337,7 +300,6 @@ export const App: React.FC = () => {
   const handleAudioEnded = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    // Double guarantee for background screen-off looping on Android WebView/Chrome
     if (isLoopingRef.current) {
       audio.currentTime = 0;
       audio.play().catch(() => {
@@ -354,7 +316,6 @@ export const App: React.FC = () => {
     stopPlayback();
   };
 
-  // Update helper for current profile
   const updateCurrentProfile = useCallback(
     (updater: (prof: PanelProfile) => PanelProfile) => {
       setProfiles((prev) =>
@@ -364,7 +325,6 @@ export const App: React.FC = () => {
     [activeProfile.id]
   );
 
-  // Global version switcher (0, 1, 2)
   const handleGlobalVersionSwitch = (slotIdx: number) => {
     navigator.vibrate?.(20);
     updateCurrentProfile((prof) => ({
@@ -377,7 +337,6 @@ export const App: React.FC = () => {
     }));
   };
 
-  // Single track version switch
   const handleSelectTrackVersion = (
     trackId: string,
     versionIndex: number,
@@ -399,7 +358,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Short tap handler: Immediate Play / Immediate Stop
   const handleShortTapTrack = (track: TrackButtonConfig) => {
     navigator.vibrate?.(15);
     if (playingTrackId === track.id) {
@@ -409,7 +367,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Pointer gesture handlers for Short-Tap vs Long-Press
   const clearLongPressTimer = () => {
     if (longPressTimerRef.current !== null) {
       window.clearTimeout(longPressTimerRef.current);
@@ -448,7 +405,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Audio upload & download handlers
   const handleUploadLocalFile = async (
     _trackId: string,
     versionId: string,
@@ -539,7 +495,6 @@ export const App: React.FC = () => {
     return { matched, unmatched };
   };
 
-  // Track & Profile dynamic configuration handlers
   const handleUpdateTrackMeta = (
     trackId: string,
     updated: Partial<TrackButtonConfig>
@@ -621,7 +576,7 @@ export const App: React.FC = () => {
   };
 
   const handleAddNewTrack = (code: string, title: string, subtitle: string) => {
-    const colors: ButtonColorTheme[] = ['cyan', 'blue', 'amber', 'emerald', 'purple', 'rose'];
+    const colors: ButtonColorTheme[] = ['blue', 'cyan', 'emerald', 'amber', 'purple', 'rose'];
     const color = colors[activeProfile.tracks.length % colors.length];
     const id = `track_${Date.now()}`;
     const newTrack: TrackButtonConfig = {
@@ -692,7 +647,7 @@ export const App: React.FC = () => {
     duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
 
   return (
-    <div className="h-[100dvh] w-screen flex flex-col bg-[#090d16] text-slate-100 select-none overflow-hidden">
+    <div className="h-[100dvh] w-full max-w-screen-md mx-auto flex flex-col justify-between bg-surface text-on-surface select-none overflow-hidden relative antialiased">
       {/* 掛載於 DOM 之持久音訊核心：支援原生無縫循環與 Android 螢幕熄滅背景前景服務 */}
       <audio
         ref={audioRef}
@@ -706,134 +661,133 @@ export const App: React.FC = () => {
         className="hidden"
       />
 
-      {/* 頂部控制列 */}
-      <header className="shrink-0 px-3 pt-2.5 pb-2 bg-slate-950/90 border-b border-slate-800/80 space-y-2">
+      {/* 1. COMPACT M3 TOP APP BAR */}
+      <header className="shrink-0 px-3 pt-2 pb-1.5 bg-surface space-y-2">
         <div className="flex items-center justify-between gap-1.5">
-          {/* 左側：情境快速切換下拉選單 */}
+          {/* Left: Scene Profile Selector Pill */}
           <div className="flex items-center gap-1.5 min-w-0 flex-1">
-            <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center shrink-0">
-              <Volume2 className="w-4 h-4 text-blue-400" />
+            <div className="flex items-center gap-1.5 bg-surface-container hover:bg-surface-container-high transition-colors px-3 py-1.5 rounded-full text-on-surface border border-outline-variant/50 max-w-full">
+              <SlidersHorizontal className="w-4 h-4 text-primary shrink-0" />
+              <select
+                aria-label="切換情境設定檔"
+                value={activeProfile.id}
+                onChange={(e) => {
+                  stopPlayback();
+                  setActiveProfileId(e.target.value);
+                }}
+                className="bg-transparent text-xs font-bold text-on-surface truncate max-w-[42vw] focus:outline-none cursor-pointer"
+              >
+                {profiles.map((p) => (
+                  <option key={p.id} value={p.id} className="bg-[var(--card)] text-on-surface">
+                    {p.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            <select
-              aria-label="切換情境設定檔"
-              value={activeProfile.id}
-              onChange={(e) => {
-                stopPlayback();
-                setActiveProfileId(e.target.value);
-              }}
-              className="bg-slate-900 border border-slate-700/90 rounded-xl px-2 py-1.5 text-xs font-bold text-white truncate max-w-[42vw] focus:outline-none focus:border-blue-500"
-            >
-              {profiles.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-            <span className="hidden sm:inline-block text-[10px] text-slate-500 font-mono">
+            <span className="hidden sm:inline-block text-[10px] text-on-surface-variant font-mono font-semibold">
               v{APP_VERSION}
             </span>
           </div>
 
-          {/* 右側：循環播放開關、防誤觸鎖定、動態配置按鈕 */}
+          {/* Right: M3 Tactical Chips & Quick Action Group */}
           <div className="flex items-center gap-1.5 shrink-0">
+            {/* Active Loop Indicator Chip */}
             <button
               type="button"
               onClick={() => setIsLooping((prev) => !prev)}
-              className={`px-2 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 active:scale-95 transition ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold transition active:scale-95 shadow-sm ${
                 isLooping
-                  ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300'
-                  : 'bg-slate-900 border-slate-700 text-slate-400'
+                  ? 'bg-primary-fixed text-on-primary-fixed border border-primary/30'
+                  : 'bg-surface-container-high text-on-surface-variant border border-outline-variant/60'
               }`}
               title="切換單曲無限循環播放"
             >
-              <Repeat className="w-3.5 h-3.5" />
+              <Repeat className="w-3.5 h-3.5 text-primary" />
               <span>{isLooping ? '循環開' : '單次'}</span>
             </button>
 
+            {/* Lock Toggle Chip */}
             <button
               type="button"
               onClick={() => setIsLocked((prev) => !prev)}
-              className={`px-2 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 active:scale-95 transition ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border transition active:scale-95 ${
                 isLocked
-                  ? 'bg-slate-900 border-slate-700 text-slate-300'
-                  : 'bg-amber-500/20 border-amber-400/60 text-amber-300'
+                  ? 'bg-surface-container-high text-on-surface-variant border-outline-variant/60'
+                  : 'bg-tertiary-fixed text-on-tertiary-fixed border-tertiary/40'
               }`}
               title="切換演出鎖定或編輯模式"
             >
               {isLocked ? (
                 <>
-                  <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                  <Lock className="w-3.5 h-3.5 text-primary" />
                   <span>鎖定</span>
                 </>
               ) : (
                 <>
-                  <Unlock className="w-3.5 h-3.5 text-amber-400" />
+                  <Unlock className="w-3.5 h-3.5 text-tertiary" />
                   <span>調配</span>
                 </>
               )}
             </button>
 
+            {/* Config Button */}
             <button
               type="button"
               onClick={() => setIsConfigOpen(true)}
-              className="px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1 shadow active:scale-95 transition"
+              aria-label="配置與音源設定"
+              className="w-8 h-8 rounded-full bg-primary text-on-primary hover:bg-primary-container flex items-center justify-center shadow-sm active:scale-95 transition-all"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>配置</span>
+              <Settings className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* 第二列：全域版本一鍵切換列 */}
-        <div className="grid grid-cols-3 gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
-          {[
-            { slot: 0, title: '全體切主版 / A', sub: '通用 / 比賽版' },
-            { slot: 1, title: '全體切 A / B 版', sub: '搖滾 / Funk' },
-            { slot: 2, title: '全體切 B / C 版', sub: '電音 / 史詩' }
-          ].map((item) => {
-            const isGlobalActive = activeProfile.globalSlotIndex === item.slot;
-            return (
-              <button
-                key={item.slot}
-                type="button"
-                onClick={() => handleGlobalVersionSwitch(item.slot)}
-                className={`py-1.5 px-2 rounded-lg text-center transition active:scale-95 ${
-                  isGlobalActive
-                    ? 'bg-blue-600 text-white shadow font-bold'
-                    : 'text-slate-400 hover:text-slate-200 font-medium'
-                }`}
-              >
-                <div className="text-xs truncate">{item.title}</div>
-                <div
-                  className={`text-[10px] truncate ${
-                    isGlobalActive ? 'text-blue-100' : 'text-slate-500'
+        {/* 2. M3 SEGMENTED BUTTON BAR (Global Version Switching) */}
+        <section aria-label="全域版本切換">
+          <div className="grid grid-cols-3 p-0.5 rounded-full bg-surface-container border border-outline-variant/60 items-center text-center">
+            {[
+              { slot: 0, title: '全體切主版 / A' },
+              { slot: 1, title: '全體切 A / B 版' },
+              { slot: 2, title: '全體切 B / C 版' }
+            ].map((item) => {
+              const isGlobalActive = activeProfile.globalSlotIndex === item.slot;
+              return (
+                <button
+                  key={item.slot}
+                  type="button"
+                  onClick={() => handleGlobalVersionSwitch(item.slot)}
+                  className={`flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full text-xs transition-all active:scale-95 ${
+                    isGlobalActive
+                      ? 'bg-primary-container text-on-primary shadow-sm font-bold'
+                      : 'text-on-surface-variant hover:text-on-surface font-semibold'
                   }`}
                 >
-                  {item.sub}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                  {isGlobalActive && <Check className="w-3.5 h-3.5 shrink-0" />}
+                  <span className="truncate">{item.title}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
       </header>
 
       {/* 錯誤提示列（若有） */}
       {playbackError && (
-        <div className="shrink-0 px-3 py-1.5 bg-rose-950 border-b border-rose-700 text-rose-200 text-xs flex items-center justify-between">
-          <span className="truncate">{playbackError}</span>
+        <div className="shrink-0 mx-3 mb-1 px-3 py-1.5 rounded-xl bg-error-container border border-error/30 text-on-error-container text-xs flex items-center justify-between">
+          <span className="truncate font-medium">{playbackError}</span>
           <button
             type="button"
             onClick={() => setPlaybackError(null)}
-            className="text-rose-300 font-bold ml-2 shrink-0"
+            className="font-bold ml-2 shrink-0 underline"
           >
             關閉
           </button>
         </div>
       )}
 
-      {/* 主體：滿版大按鈕區（自動填滿剩餘螢幕高度，免捲動，短按即播即停，長按切版本） */}
+      {/* 3. MAIN SOUNDBOARD MATRIX: 5 TACTILE FULL-HEIGHT M3 PADS */}
       <main
-        className={`flex-1 min-h-0 p-2.5 grid gap-2.5 ${
+        className={`flex-1 min-h-0 px-3 py-1.5 grid gap-2 overflow-hidden ${
           activeProfile.gridColumns === 2 ? 'grid-cols-2' : 'grid-cols-1'
         }`}
         style={{
@@ -844,11 +798,11 @@ export const App: React.FC = () => {
           const isPlaying = playingTrackId === track.id;
           const activeVer =
             track.versions[track.activeVersionIndex] || track.versions[0];
-          const theme = THEME_STYLES[track.colorTheme] || THEME_STYLES.blue;
+          const accent = M3_ACCENT_STYLES[track.colorTheme] || M3_ACCENT_STYLES.blue;
           const isCached = activeVer ? Boolean(cachedMetaMap[activeVer.id]) : false;
 
           return (
-            <div
+            <article
               key={track.id}
               role="button"
               tabIndex={0}
@@ -867,101 +821,122 @@ export const App: React.FC = () => {
                   handleShortTapTrack(track);
                 }
               }}
-              className={`relative rounded-2xl border-2 overflow-hidden flex flex-col justify-between p-3.5 transition-all duration-150 active:scale-[0.985] cursor-pointer ${
+              className={`min-h-0 relative rounded-2xl flex flex-col justify-between p-3 overflow-hidden tactile-pad cursor-pointer ${
                 isPlaying
-                  ? `${theme.activeBg} ${theme.activeBorder}`
-                  : `${theme.idleBg} ${theme.idleBorder}`
+                  ? 'bg-[var(--card)] border-2 border-primary shadow-md'
+                  : 'bg-surface-container-low hover:bg-surface-container border border-outline-variant/60 shadow-sm'
               }`}
             >
-              {/* 播放中底色進度條（內嵌於按鈕背景，不佔用額外版面） */}
+              {/* Live Progress Background Track when playing */}
               {isPlaying && (
-                <div
-                  className={`absolute inset-y-0 left-0 pointer-events-none transition-all duration-150 ${theme.progressFill}`}
-                  style={{ width: `${progressPercent}%` }}
-                />
+                <>
+                  <div
+                    className="absolute left-0 top-0 bottom-0 bg-primary-fixed/65 pointer-events-none transition-all duration-200 ease-linear"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary pointer-events-none" />
+                </>
               )}
 
-              {/* 上半部：編號、主曲名、當前版本膠囊 */}
+              {/* Card Top: Number, Track Title, Subtitle & Version Assist Chip */}
               <div className="relative z-10 flex items-start justify-between gap-2 w-full">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-base shrink-0 shadow ${theme.codeBg}`}
+                  <span
+                    className={`w-8 h-8 rounded-xl font-mono font-bold text-sm flex items-center justify-center shrink-0 shadow-sm ${accent.codeBadge}`}
                   >
-                    {isPlaying ? (
-                      <Square className="w-5 h-5 fill-current animate-pulse" />
-                    ) : (
-                      track.code
-                    )}
-                  </div>
+                    {track.code}
+                  </span>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white truncate">
+                    <div className="flex items-baseline gap-1.5 truncate">
+                      <h2 className="text-lg sm:text-xl font-extrabold text-on-surface tracking-tight truncate">
                         {track.title}
                       </h2>
-                      {isPlaying && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500 text-slate-950 animate-pulse shrink-0">
-                          <Disc3 className="w-3 h-3 animate-spin" />
-                          <span>{isLooping ? '循環播放中' : '播放中'}</span>
-                        </span>
-                      )}
+                      <span className="text-xs font-semibold text-primary truncate">
+                        ({track.subtitle})
+                      </span>
                     </div>
-                    <p className="text-xs text-slate-300/90 truncate mt-0.5">
-                      {track.subtitle}
-                    </p>
                   </div>
                 </div>
 
-                {/* 右側：目前版本顯示標籤（若處於未鎖定調配模式，點擊可直接開啟版本選單） */}
-                <button
-                  type="button"
-                  onPointerDown={(e) => {
-                    if (!isLocked) {
-                      e.stopPropagation();
-                    }
-                  }}
-                  onClick={(e) => {
-                    if (!isLocked) {
-                      e.stopPropagation();
-                      setLongPressTrackId(track.id);
-                    }
-                  }}
-                  className={`px-2.5 py-1 rounded-xl border text-xs font-bold flex items-center gap-1 shrink-0 ${theme.badgeBg}`}
-                >
-                  <Layers className="w-3.5 h-3.5 opacity-80" />
-                  <span>{activeVer?.shortBadge || '預設'}</span>
-                </button>
+                {/* Right: Animated Equalizer + Version Assist Chip */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {isPlaying && (
+                    <div className="flex items-center gap-1 bg-primary text-on-primary rounded-full px-2.5 py-0.5 text-[11px] font-bold shadow-sm">
+                      <div className="flex items-end gap-[2px] h-3 mr-0.5">
+                        <span className="w-[2.5px] bg-[var(--primary-foreground)] rounded-full eq-bar-1" />
+                        <span className="w-[2.5px] bg-[var(--primary-foreground)] rounded-full eq-bar-2" />
+                        <span className="w-[2.5px] bg-[var(--primary-foreground)] rounded-full eq-bar-3" />
+                      </div>
+                      <span>{isLooping ? '循環中' : '播放中'}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onPointerDown={(e) => {
+                      if (!isLocked) e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      if (!isLocked) {
+                        e.stopPropagation();
+                        setLongPressTrackId(track.id);
+                      }
+                    }}
+                    className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 ${accent.chipStyle}`}
+                  >
+                    <Layers className="w-3 h-3 opacity-80" />
+                    <span>{activeVer?.shortBadge || '預設'}</span>
+                  </button>
+                </div>
               </div>
 
-              {/* 下半部：音檔狀態與即時秒數 / 長按提示 */}
-              <div className="relative z-10 flex items-center justify-between gap-2 pt-1 text-[11px] text-slate-400 w-full">
+              {/* Card Bottom: Audio Filename / Timecode & Tactile M3 Trigger */}
+              <div className="relative z-10 flex items-center justify-between gap-2 pt-1.5 border-t border-outline-variant/30 mt-auto w-full">
                 <div className="flex items-center gap-2 min-w-0 truncate">
-                  <span className="truncate font-mono opacity-85">
-                    {activeVer?.originalFileName}
-                  </span>
+                  {isPlaying ? (
+                    <span className="font-mono text-xs font-bold text-on-surface">
+                      {formatTime(currentTime)}{' '}
+                      <span className="text-on-surface-variant font-normal">
+                        / {formatTime(duration)}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-mono text-on-surface-variant truncate">
+                      {activeVer?.originalFileName}
+                    </span>
+                  )}
+
                   {isCached && (
-                    <span className="px-1.5 py-0.5 rounded bg-emerald-950/90 border border-emerald-700/60 text-emerald-300 text-[10px] shrink-0">
+                    <span className="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold shrink-0">
                       離線快取
                     </span>
                   )}
                 </div>
 
-                <div className="shrink-0 font-mono font-semibold">
+                {/* Right: M3 Filled Tonal Trigger Pill */}
+                <div className="flex items-center gap-1.5 shrink-0">
                   {isPlaying ? (
-                    <span className="text-white bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-700">
-                      {formatTime(currentTime)} / {formatTime(duration)}（點擊即停）
-                    </span>
+                    <div className="h-8 px-3.5 rounded-full bg-primary text-on-primary flex items-center gap-1.5 text-xs font-bold shadow-sm">
+                      <Pause className="w-3.5 h-3.5 fill-current" />
+                      <span>點擊即停</span>
+                    </div>
                   ) : (
-                    <span className="flex items-center gap-1 text-slate-400">
-                      <Play className="w-3 h-3 fill-current" />
-                      <span>短按即播・長按切版</span>
-                    </span>
+                    <div className="h-8 px-3.5 rounded-full bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed flex items-center gap-1 text-xs font-bold shadow-sm">
+                      <Play className="w-3.5 h-3.5 fill-current text-primary" />
+                      <span>短按播放・長按切版</span>
+                    </div>
                   )}
                 </div>
               </div>
-            </div>
+            </article>
           );
         })}
       </main>
+
+      {/* 4. ANDROID GESTURE HOME INDICATOR */}
+      <footer className="w-full py-1 flex justify-center items-center shrink-0 bg-surface">
+        <div className="w-20 h-1 bg-outline-variant rounded-full" />
+      </footer>
 
       {/* 長按單曲彈出之版本切換、應援歌詞與單曲音源設定視窗 */}
       <TrackLongPressSheet
@@ -981,7 +956,7 @@ export const App: React.FC = () => {
         onDeleteVersionFromTrack={handleDeleteVersionFromTrack}
       />
 
-      {/* 頂部「配置/音源」彈出之動態按鈕調配與本地/雲端批次快取視窗 */}
+      {/* 頂部「配置」彈出之動態按鈕調配與本地/雲端批次快取視窗 */}
       <ConfigAndCloudModal
         isOpen={isConfigOpen}
         onClose={() => setIsConfigOpen(false)}

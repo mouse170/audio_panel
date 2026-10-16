@@ -8,28 +8,46 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg', 'audio/*.mp3', 'lyrics/*.txt'],
+      includeAssets: [
+        'favicon.svg',
+        'favicon.png',
+        'apple-touch-icon.png',
+        'icon-512.png',
+        'icon.svg',
+        'audio/*.mp3',
+        'lyrics/*.txt'
+      ],
       manifest: {
-        name: '應援音控面板 Audio Panel',
+        name: '應援音控面板 Audio Panel (M3)',
         short_name: '音控面板',
-        description: 'Android 行動端極簡大按鈕音檔控場與多版本動態調配系統',
-        theme_color: '#090d16',
-        background_color: '#090d16',
+        description: 'Material Design 3 淡藍色主題 Android 行動端音檔控場與多版本動態調配系統',
+        theme_color: '#f4f9ff',
+        background_color: '#f4f9ff',
         display: 'standalone',
         orientation: 'portrait',
         start_url: './',
         icons: [
           {
-            src: 'icon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
+            src: 'favicon.png',
+            sizes: '256x256',
+            type: 'image/png'
+          },
+          {
+            src: 'icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'any maskable'
+          },
+          {
+            src: 'favicon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml'
           }
         ]
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 15 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,svg,mp3,txt}']
+        globPatterns: ['**/*.{js,css,html,svg,png,mp3,txt}']
       }
     })
   ]

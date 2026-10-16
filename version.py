@@ -7,7 +7,7 @@ from pathlib import Path
 
 APP_NAME = "audio_panel"
 APP_DISPLAY_NAME = "Audio Panel"
-VERSION = "0.2.2.0"
+VERSION = "0.3.0.0"
 
 # Google Drive 24 字元防截斷安全縮寫代號 (audio_panel -> AP，或保留 10 字元內代號)
 PACKAGE_NAME_PREFIX = "audio_panel"

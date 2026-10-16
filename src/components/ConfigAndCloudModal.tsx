@@ -17,7 +17,7 @@ import {
   Trash2,
   Upload
 } from 'lucide-react';
-import { CachedAudioMeta, PanelProfile, TrackButtonConfig } from '../types';
+import { CachedAudioMeta, PanelProfile } from '../types';
 import { GDRIVE_FOLDER_URL } from '../defaultData';
 import { NativeModal } from './NativeModal';
 
@@ -123,7 +123,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `audio_panel_profiles_v0.2.0.0.json`;
+    a.download = `audio_panel_profiles_v0.3.0.0.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -159,13 +159,15 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
         onChange={handleImportJsonFile}
       />
 
-      {/* 頂部切換列 */}
-      <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-3.5">
+      {/* M3 Segmented Pill Bar */}
+      <div className="grid grid-cols-3 gap-1 p-1 bg-surface-container rounded-full border border-outline-variant/60 mb-3.5">
         <button
           type="button"
           onClick={() => setTab('layout')}
-          className={`py-2 px-2 rounded-lg text-xs font-bold transition ${
-            tab === 'layout' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'
+          className={`py-2 px-2 rounded-full text-xs font-bold transition ${
+            tab === 'layout'
+              ? 'bg-primary text-on-primary shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           按鈕動態調配
@@ -173,8 +175,10 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
         <button
           type="button"
           onClick={() => setTab('audio')}
-          className={`py-2 px-2 rounded-lg text-xs font-bold transition ${
-            tab === 'audio' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'
+          className={`py-2 px-2 rounded-full text-xs font-bold transition ${
+            tab === 'audio'
+              ? 'bg-primary text-on-primary shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           本地/雲端音檔
@@ -182,8 +186,10 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
         <button
           type="button"
           onClick={() => setTab('profiles')}
-          className={`py-2 px-2 rounded-lg text-xs font-bold transition ${
-            tab === 'profiles' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'
+          className={`py-2 px-2 rounded-full text-xs font-bold transition ${
+            tab === 'profiles'
+              ? 'bg-primary text-on-primary shadow-sm'
+              : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           情境組 ({profiles.length})
@@ -191,24 +197,24 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
       </div>
 
       {progressText && (
-        <div className="mb-3 px-3 py-2 rounded-xl bg-blue-950/80 border border-blue-700/70 text-xs text-blue-200">
+        <div className="mb-3 px-3.5 py-2.5 rounded-2xl bg-primary-fixed text-on-primary-fixed border border-primary/30 text-xs font-medium">
           {progressText}
         </div>
       )}
 
-      {/* 分頁 1：按鈕動態調配（排列方式、顯示開關、排序、新增曲目） */}
+      {/* 分頁 1：按鈕動態調配 */}
       {tab === 'layout' && (
         <div className="space-y-3.5 text-xs">
-          <div className="flex items-center justify-between bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/70">
-            <span className="font-semibold text-slate-200">手機面板網格排列方式</span>
+          <div className="flex items-center justify-between bg-surface-container-low p-3 rounded-2xl border border-outline-variant/60">
+            <span className="font-bold text-on-surface">手機面板網格排列方式</span>
             <div className="flex gap-1.5">
               <button
                 type="button"
                 onClick={() => onUpdateActiveProfile({ gridColumns: 1 })}
-                className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1 font-bold transition ${
+                className={`px-3 py-1.5 rounded-full flex items-center gap-1 font-bold transition ${
                   activeProfile.gridColumns === 1
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-900 text-slate-400'
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'bg-surface-container-high text-on-surface-variant'
                 }`}
               >
                 <List className="w-3.5 h-3.5" />
@@ -217,10 +223,10 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
               <button
                 type="button"
                 onClick={() => onUpdateActiveProfile({ gridColumns: 2 })}
-                className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1 font-bold transition ${
+                className={`px-3 py-1.5 rounded-full flex items-center gap-1 font-bold transition ${
                   activeProfile.gridColumns === 2
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-900 text-slate-400'
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'bg-surface-container-high text-on-surface-variant'
                 }`}
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
@@ -230,7 +236,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between text-on-surface-variant font-medium">
               <span>曲目按鈕順序與顯示控制（點擊眼睛可隱藏/顯示）：</span>
               <span>
                 顯示中：{activeProfile.tracks.filter((t) => t.visible).length} / {activeProfile.tracks.length}
@@ -240,18 +246,20 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
             {activeProfile.tracks.map((track, idx) => (
               <div
                 key={track.id}
-                className={`flex items-center justify-between gap-2 p-2.5 rounded-xl border ${
+                className={`flex items-center justify-between gap-2 p-2.5 rounded-2xl border ${
                   track.visible
-                    ? 'bg-slate-800/70 border-slate-700 text-white'
-                    : 'bg-slate-900/50 border-slate-800/70 text-slate-500'
+                    ? 'bg-surface-container-low border-outline-variant text-on-surface'
+                    : 'bg-surface-container/40 border-outline-variant/40 text-on-surface-variant/60'
                 }`}
               >
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <button
                     type="button"
                     onClick={() => onToggleTrackVisible(track.id)}
-                    className={`p-1.5 rounded-lg ${
-                      track.visible ? 'bg-blue-600/30 text-blue-300' : 'bg-slate-800 text-slate-500'
+                    className={`p-2 rounded-full ${
+                      track.visible
+                        ? 'bg-primary-fixed text-primary'
+                        : 'bg-surface-container-high text-on-surface-variant'
                     }`}
                     title={track.visible ? '隱藏此按鈕' : '顯示此按鈕'}
                   >
@@ -261,7 +269,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                     <div className="font-bold text-sm truncate">
                       {track.code}. {track.title}
                     </div>
-                    <div className="text-[11px] text-slate-400 truncate">
+                    <div className="text-[11px] text-on-surface-variant truncate">
                       {track.subtitle}（{track.versions.length} 個版本）
                     </div>
                   </div>
@@ -272,7 +280,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                     type="button"
                     disabled={idx === 0}
                     onClick={() => onMoveTrack(idx, 'up')}
-                    className="p-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 disabled:opacity-30"
+                    className="p-1.5 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface disabled:opacity-30"
                     title="上移"
                   >
                     <ArrowUp className="w-3.5 h-3.5" />
@@ -281,7 +289,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                     type="button"
                     disabled={idx === activeProfile.tracks.length - 1}
                     onClick={() => onMoveTrack(idx, 'down')}
-                    className="p-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 disabled:opacity-30"
+                    className="p-1.5 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface disabled:opacity-30"
                     title="下移"
                   >
                     <ArrowDown className="w-3.5 h-3.5" />
@@ -290,7 +298,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                     <button
                       type="button"
                       onClick={() => onDeleteTrack(track.id)}
-                      className="p-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 ml-1"
+                      className="p-1.5 rounded-full bg-error-container text-on-error-container ml-1"
                       title="刪除此曲目按鈕"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -302,22 +310,22 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
           </div>
 
           {/* 動態新增曲目按鈕 */}
-          <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
-            <div className="font-semibold text-slate-300">動態新增控制曲目按鈕：</div>
+          <div className="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/60 space-y-2">
+            <div className="font-bold text-on-surface">動態新增控制曲目按鈕：</div>
             <div className="grid grid-cols-4 gap-1.5">
               <input
                 type="text"
                 value={newTrackCode}
                 onChange={(e) => setNewTrackCode(e.target.value)}
                 placeholder="編號(06)"
-                className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-white"
+                className="bg-[var(--card)] border border-outline-variant rounded-xl px-2.5 py-1.5 text-on-surface"
               />
               <input
                 type="text"
                 value={newTrackTitle}
                 onChange={(e) => setNewTrackTitle(e.target.value)}
                 placeholder="曲目名稱"
-                className="col-span-3 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                className="col-span-3 bg-[var(--card)] border border-outline-variant rounded-xl px-2.5 py-1.5 text-on-surface"
               />
             </div>
             <div className="flex gap-1.5">
@@ -326,7 +334,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                 value={newTrackSub}
                 onChange={(e) => setNewTrackSub(e.target.value)}
                 placeholder="用途說明（例：加碼延長賽）"
-                className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                className="flex-1 bg-[var(--card)] border border-outline-variant rounded-xl px-2.5 py-1.5 text-on-surface"
               />
               <button
                 type="button"
@@ -340,7 +348,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                   setNewTrackTitle('');
                   setNewTrackSub('');
                 }}
-                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold flex items-center gap-1 shrink-0"
+                className="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-bold flex items-center gap-1 shrink-0 shadow-sm"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>新增按鈕</span>
@@ -353,23 +361,21 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
       {/* 分頁 2：本地與網路音檔離線快取中心 */}
       {tab === 'audio' && (
         <div className="space-y-3.5 text-xs">
-          <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2.5">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
-                  <HardDrive className="w-4 h-4 text-emerald-400" />
-                  <span>一鍵全量寫入手機 IndexedDB 永久離線快取</span>
-                </h3>
-                <p className="text-slate-400 mt-1 leading-relaxed">
-                  目前系統已內建 Google Drive（1306 資料夾）全部 15 首音檔。點擊下方按鈕可將全部 15 首音檔二進位資料永久寫入手機瀏覽器 IndexedDB，確保開啟飛航模式或無網路時 100% 零延遲秒播。
-                </p>
-              </div>
+          <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/60 space-y-2.5">
+            <div>
+              <h3 className="font-bold text-sm text-on-surface flex items-center gap-1.5">
+                <HardDrive className="w-4 h-4 text-primary" />
+                <span>一鍵全量寫入手機 IndexedDB 永久離線快取</span>
+              </h3>
+              <p className="text-on-surface-variant mt-1 leading-relaxed">
+                目前系統已內建 Google Drive（1306 資料夾）全部 15 首音檔。點擊下方按鈕可將全部 15 首音檔二進位資料永久寫入手機瀏覽器 IndexedDB，確保開啟飛航模式或無網路時 100% 零延遲秒播。
+              </p>
             </div>
             <button
               type="button"
               disabled={isCaching}
               onClick={handleBatchPreCache}
-              className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg active:scale-[0.99] transition disabled:opacity-50"
+              className="w-full py-2.5 px-4 rounded-full bg-primary hover:bg-primary-container text-on-primary font-bold flex items-center justify-center gap-2 shadow-sm active:scale-[0.99] transition disabled:opacity-50"
             >
               <CloudDownload className="w-4 h-4" />
               <span>
@@ -380,16 +386,15 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
             </button>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2.5">
-            <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
-              <FolderUp className="w-4 h-4 text-indigo-400" />
+          <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/60 space-y-2.5">
+            <h3 className="font-bold text-sm text-on-surface flex items-center gap-1.5">
+              <FolderUp className="w-4 h-4 text-tertiary" />
               <span>從 Android 手機批次選取本地音檔（自動依檔名配對）</span>
             </h3>
-            <p className="text-slate-400 leading-relaxed">
-              支援一次多選手機內的 <code className="text-slate-200">.mpeg</code> 或{' '}
-              <code className="text-slate-200">.mp3</code> 檔案（例如{' '}
-              <code className="text-slate-200">01_登場曲_通用版.mpeg</code>、
-              <code className="text-slate-200">02A_轉起來_DiscoFunk.mpeg</code>），系統將自動對應至 5 首曲目的各別版本槽位。
+            <p className="text-on-surface-variant leading-relaxed">
+              支援一次多選手機內的 <code className="font-mono font-bold text-primary">.mpeg</code> 或{' '}
+              <code className="font-mono font-bold text-primary">.mp3</code> 檔案（例如{' '}
+              <code className="font-mono text-on-surface">01_登場曲_通用版.mpeg</code>），系統將自動對應至 5 首曲目的各別版本槽位。
             </p>
             <button
               type="button"
@@ -400,23 +405,23 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                   batchFileInputRef.current.click();
                 }
               }}
-              className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition"
+              className="w-full py-2.5 px-4 rounded-full bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition shadow-sm"
             >
               <FolderUp className="w-4 h-4" />
               <span>批次選取手機本地音檔 (.mpeg / .mp3)</span>
             </button>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-950/90 border border-slate-800 flex items-center justify-between">
+          <div className="p-3.5 rounded-2xl bg-surface-container border border-outline-variant/60 flex items-center justify-between">
             <div className="min-w-0 pr-2">
-              <div className="font-semibold text-slate-200">Google Drive 原始音檔雲端資料夾（1306）</div>
-              <div className="text-[11px] text-slate-400 truncate">{GDRIVE_FOLDER_URL}</div>
+              <div className="font-bold text-on-surface">Google Drive 原始音檔雲端資料夾（1306）</div>
+              <div className="text-[11px] text-on-surface-variant truncate font-mono">{GDRIVE_FOLDER_URL}</div>
             </div>
             <a
               href={GDRIVE_FOLDER_URL}
               target="_blank"
               rel="noreferrer"
-              className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 font-semibold flex items-center gap-1 shrink-0"
+              className="px-3.5 py-2 rounded-full bg-primary-fixed text-on-primary-fixed font-bold flex items-center gap-1 shrink-0"
             >
               <span>開啟雲端</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -430,7 +435,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                 await onClearAllCache();
                 setProgressText('已清除所有自訂快取，回復使用系統內建之 15 首音源。');
               }}
-              className="text-slate-400 hover:text-rose-400 flex items-center gap-1 py-1 px-2"
+              className="text-on-surface-variant hover:text-error font-semibold flex items-center gap-1 py-1 px-2"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>清除自訂快取（回復內建預設音源）</span>
@@ -449,10 +454,10 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
               return (
                 <div
                   key={prof.id}
-                  className={`p-3 rounded-xl border flex items-center justify-between gap-2 ${
+                  className={`p-3.5 rounded-2xl border flex items-center justify-between gap-2 ${
                     isCurrent
-                      ? 'bg-blue-950/40 border-blue-500 text-white'
-                      : 'bg-slate-800/50 border-slate-700/70 text-slate-200'
+                      ? 'bg-primary-fixed/50 border-primary text-on-surface shadow-sm'
+                      : 'bg-surface-container-low border-outline-variant/60 text-on-surface'
                   }`}
                 >
                   <button
@@ -461,19 +466,19 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                     className="flex-1 text-left min-w-0"
                   >
                     <div className="flex items-center gap-1.5">
-                      {isCurrent && <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />}
+                      {isCurrent && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
                       <span className="font-bold text-sm truncate">{prof.name}</span>
-                      <span className="px-2 py-0.5 text-[10px] rounded bg-slate-700 text-slate-300">
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-surface-container-high text-on-surface-variant">
                         {visibleCount} 鈕 / {prof.gridColumns === 1 ? '單欄' : '雙欄'}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-1 truncate">{prof.description}</p>
+                    <p className="text-[11px] text-on-surface-variant mt-1 truncate">{prof.description}</p>
                   </button>
                   {profiles.length > 1 && (
                     <button
                       type="button"
                       onClick={() => onDeleteProfile(prof.id)}
-                      className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800"
+                      className="p-2 rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/40"
                       title="刪除此情境組"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -484,14 +489,14 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
             })}
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
-            <div className="font-semibold text-slate-300">複製當前配置並另存為新情境：</div>
+          <div className="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/60 space-y-2">
+            <div className="font-bold text-on-surface">複製當前配置並另存為新情境：</div>
             <input
               type="text"
               value={newProfileName}
               onChange={(e) => setNewProfileName(e.target.value)}
               placeholder="新情境名稱（例：下半場延長賽配置）"
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+              className="w-full bg-[var(--card)] border border-outline-variant rounded-xl px-3 py-1.5 text-on-surface"
             />
             <div className="flex gap-1.5">
               <input
@@ -499,7 +504,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                 value={newProfileDesc}
                 onChange={(e) => setNewProfileDesc(e.target.value)}
                 placeholder="情境備註說明"
-                className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                className="flex-1 bg-[var(--card)] border border-outline-variant rounded-xl px-3 py-1.5 text-on-surface"
               />
               <button
                 type="button"
@@ -512,7 +517,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                   setNewProfileName('');
                   setNewProfileDesc('');
                 }}
-                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold flex items-center gap-1 shrink-0"
+                className="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-bold flex items-center gap-1 shrink-0 shadow-sm"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>儲存情境</span>
@@ -520,12 +525,12 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-outline-variant/50">
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={handleExportJson}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
+                className="px-3.5 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-semibold flex items-center gap-1"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>匯出配置 JSON</span>
@@ -533,7 +538,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
               <button
                 type="button"
                 onClick={() => jsonImportInputRef.current?.click()}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
+                className="px-3.5 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-semibold flex items-center gap-1"
               >
                 <Upload className="w-3.5 h-3.5" />
                 <span>匯入配置 JSON</span>
@@ -545,7 +550,7 @@ export const ConfigAndCloudModal: React.FC<ConfigAndCloudModalProps> = ({
                 onResetFactoryProfiles();
                 setProgressText('已重設所有情境與按鈕為原廠預設值。');
               }}
-              className="text-rose-400 hover:text-rose-300 flex items-center gap-1 py-1"
+              className="text-error font-semibold flex items-center gap-1 py-1"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>重設原廠配置</span>

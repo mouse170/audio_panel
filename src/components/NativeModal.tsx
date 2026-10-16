@@ -73,28 +73,28 @@ export const NativeModal: React.FC<NativeModalProps> = ({
       ref={dialogRef}
       closedby="any"
       aria-labelledby={titleId}
-      className="w-[94vw] max-w-lg max-h-[88dvh] rounded-2xl bg-slate-900 text-slate-100 border border-slate-700/80 shadow-2xl p-0 overflow-hidden m-auto"
+      className="w-[94vw] max-w-lg max-h-[88dvh] rounded-[28px] bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] shadow-2xl p-0 overflow-hidden m-auto"
     >
       <div className="flex flex-col max-h-[88dvh]">
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-800 bg-slate-900/95 shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)] bg-surface-container-low shrink-0">
           <div className="min-w-0 pr-2">
-            <h2 id={titleId} className="text-base font-bold text-white truncate">
+            <h2 id={titleId} className="text-base font-bold text-on-surface truncate">
               {title}
             </h2>
             {subtitle && (
-              <p className="text-xs text-slate-400 truncate mt-0.5">{subtitle}</p>
+              <p className="text-xs text-on-surface-variant truncate mt-0.5">{subtitle}</p>
             )}
           </div>
           <button
             type="button"
             onClick={() => dialogRef.current?.close()}
             aria-label="關閉視窗"
-            className="p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 active:scale-95 transition shrink-0"
+            className="w-9 h-9 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center active:scale-95 transition shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-4 overflow-y-auto custom-scroll flex-1">
+        <div className="p-4 overflow-y-auto custom-scroll flex-1 bg-[var(--card)]">
           {children}
         </div>
       </div>
