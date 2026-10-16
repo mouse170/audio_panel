@@ -1,7 +1,7 @@
 import { PanelProfile, TrackButtonConfig } from './types';
 
 export const GDRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1mks1ddPh6IWNXGnesEqMEqJci4wsD8yB';
-export const APP_VERSION = '0.2.1.0';
+export const APP_VERSION = '0.2.1.1';
 
 export const DEFAULT_TRACKS: TrackButtonConfig[] = [
   {
